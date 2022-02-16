@@ -7,9 +7,10 @@ from hebsafeharbor.common.document import Doc
 from hebsafeharbor.identifier.consolidation.conflict_handler import ExactMatch, SameCategory, SameBoundaries, Mixed
 from hebsafeharbor.identifier.consolidation.consolidation_config import ENTITY_TYPE_TO_CATEGORY, ENTITY_TYPES_TO_IGNORE, \
     ConflictCase, ENTITY_TYPES_TO_POSTPROCESS
-from hebsafeharbor.identifier.consolidation.location_entity_consolidator import LocationEntityPostConsolidator
+from hebsafeharbor.identifier.consolidation.post_consolidation.city_country_post_consolidator import CityCountryPostConsolidator
 from hebsafeharbor.identifier.consolidation.overlap_resolver import PreferLongestEntity, ContextBasedResolver, \
     CategoryMajorityResolver
+from hebsafeharbor.identifier.consolidation.post_consolidation.medical_post_consolidator import MedicalPostConsolidator
 
 
 class NerConsolidator:
@@ -30,7 +31,7 @@ class NerConsolidator:
                                                          self.category_majority_resolver),
             ConflictCase.MIXED: Mixed(self.prefer_longest_entity_resolver)
         }
-        self.postprocess_consolidators = [LocationEntityPostConsolidator(), ]
+        self.postprocess_consolidators = [CityCountryPostConsolidator(), MedicalPostConsolidator()]
 
     def __call__(self, doc: Doc) -> Doc:
         """
@@ -56,9 +57,6 @@ class NerConsolidator:
                 consolidated_entities.append(selected_entity)
                 last_entity = selected_entity
             group = self.get_next_overlapped_entities_group(filtered_entities, last_entity.end)
-
-        # trigger the location entity consolidator which decides for each overlapping LOC, GPE, COUNTRY, CITY entity
-        # whether its position should be adjusted to remove overlap
 
         # trigger the custom entity consolidators
         for custom_consolidator in self.postprocess_consolidators:

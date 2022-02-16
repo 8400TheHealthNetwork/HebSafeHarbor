@@ -1,21 +1,26 @@
 from typing import List
 
+from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, ABBREVIATIONS_LIST
+from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
+from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS
 from hebsafeharbor.identifier import HebSpacyNlpEngine
 from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
-from hebsafeharbor.identifier.signals.country_recognizer import CountryRecognizer
 from hebsafeharbor.identifier.signals.general_id_recognizer import GeneralIdRecognizer
 
 from hebsafeharbor.identifier.signals.heb_date_recognizer import HebDateRecognizer
 from hebsafeharbor.identifier.signals.heb_preposition_date_recognizer import PrepositionDateRecognizer
 from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinDateRecognizer
-from hebsafeharbor.identifier.signals.israeli_city_recognizer import IsraeliCityRecognizer
 from hebsafeharbor.identifier.signals.israeli_id_recognizer import IsraeliIdNumberRecognizer
 from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
     IpRecognizer, PhoneRecognizer, SpacyRecognizer
+
+from hebsafeharbor.identifier.signals.lexicon_based_recognizer import LexiconBasedRecognizer
+from hebsafeharbor.lexicons.disease import DISEASES
+from hebsafeharbor.lexicons.medications import MEDICATIONS
 
 
 class PhiIdentifier:
@@ -116,10 +121,20 @@ class PhiIdentifier:
         # init latin dates
         ner_signals.append(HebLatinDateRecognizer())
         # init Hebrew country recognizer
-        ner_signals.append(CountryRecognizer(supported_language="he"))
+        ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
+                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
         # init Hebrew city recognizer
-        ner_signals.append(IsraeliCityRecognizer(supported_language="he"))
-
+        ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
+                                                  set(BELOW_THRESHOLD_CITIES_LIST).union(
+                                                      set(ABOVE_THRESHOLD_CITIES_LIST)).union(set(ABBREVIATIONS_LIST)),
+                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
+        # init disease recognizer
+        ner_signals.append(
+            LexiconBasedRecognizer("DiseaseRecognizer", "DISEASE", DISEASES, allowed_prepositions=DISEASE_PREPOSITIONS))
+        # init medication recognizer
+        ner_signals.append(
+            LexiconBasedRecognizer("MedicationRecognizer", "MEDICATION", MEDICATIONS,
+                                   allowed_prepositions=MEDICATION_PREPOSITIONS))
         return ner_signals
 
     def init_hebspacy_recognizer(self):

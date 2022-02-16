@@ -3,18 +3,19 @@ from typing import List
 from presidio_analyzer import RecognizerResult
 
 from hebsafeharbor import Doc
-from hebsafeharbor.common.location_utils import LOCATION_PREPOSITIONS
-from hebsafeharbor.identifier.consolidation.custom_consolidator import PostConsolidatorRule
+from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS
+from hebsafeharbor.identifier.consolidation.post_consolidation.post_consolidator_rule import PostConsolidatorRule
 
 
-class LocationEntityPostConsolidator(PostConsolidatorRule):
+class CityCountryPostConsolidator(PostConsolidatorRule):
     """
-    This entity consolidator decides for each LOCATION entity whether its position should be adjusted to remove overlap.
+    This post consolidator decides for each CITY/COUNTRY entity whether to keep it or not and adjust overlapped entities
+    if necessary.
     """
 
     def __init__(self):
         """
-        Initializes LocationEntityConsolidator
+        Initializes CityCountryPostConsolidator
         """
         super().__init__(supported_entity_types=["COUNTRY", "CITY"],
                          higher_preference_entity_types=["PERS", "PER", "ORG", "FAC"],
