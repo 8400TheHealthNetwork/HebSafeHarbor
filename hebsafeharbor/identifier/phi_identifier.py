@@ -115,19 +115,19 @@ class PhiIdentifier:
         # init general id recognizer
         ner_signals.append(GeneralIdRecognizer())
         # init dates in hebrew
-        ner_signals.append(HebDateRecognizer())
+        # ner_signals.append(HebDateRecognizer())
         # init dates with preposition
         ner_signals.append(PrepositionDateRecognizer())
         # init latin dates
         ner_signals.append(HebLatinDateRecognizer())
         # init Hebrew country recognizer
-        ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
-                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
+        # ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
+        #                                           allowed_prepositions=LOCATION_PREPOSITIONS))
         # init Hebrew city recognizer
-        ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
-                                                  set(BELOW_THRESHOLD_CITIES_LIST).union(
-                                                      set(ABOVE_THRESHOLD_CITIES_LIST)).union(set(ABBREVIATIONS_LIST)),
-                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
+        # ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
+        #                                           set(BELOW_THRESHOLD_CITIES_LIST).union(
+        #                                               set(ABOVE_THRESHOLD_CITIES_LIST)).union(set(ABBREVIATIONS_LIST)),
+        #                                           allowed_prepositions=LOCATION_PREPOSITIONS))
         # init disease recognizer
         ner_signals.append(
             LexiconBasedRecognizer("DiseaseRecognizer", "DISEASE", DISEASES, allowed_prepositions=DISEASE_PREPOSITIONS))
