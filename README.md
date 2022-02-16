@@ -18,7 +18,7 @@ pip install -r requirements.txt
 pip install -e .
 
 # Download the he_ner_news_trf model used by hebsafeharbor
-pip install https://github.com/dkarmon/HebSpacy/releases/download/he_ner_news_trf-3.2.1/he_ner_news_trf-3.2.1-py3-none-any.whl
+pip install https://github.com/8400TheHealthNetwork/HebSpacy/releases/download/he_ner_news_trf-3.2.1/he_ner_news_trf-3.2.1-py3-none-any.whl
 ```
 
 ## Getting started
