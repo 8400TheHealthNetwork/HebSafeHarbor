@@ -1,0 +1,1 @@
+LOCATION_PREPOSITIONS = ["מ", "ל", "ב", "ו"]
