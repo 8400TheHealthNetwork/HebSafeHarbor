@@ -1,0 +1,2 @@
+fastapi[all]
+https://github.com/8400TheHealthNetwork/HebSpacy/releases/download/he_ner_news_trf-3.2.1/he_ner_news_trf-3.2.1.tar.gz
