@@ -1,5 +1,5 @@
 import json
-
+import os
 import requests
 import streamlit as st
 
@@ -8,9 +8,7 @@ st.set_page_config(layout="wide", page_title="Hebrew Safe Harbor", initial_sideb
 from visualizer import visualize_response
 
 DEFAULT_TEXT = "גדעון לבנה הגיע היום לבית החולים שערי צדק עם תלונות על כאבים בחזה"
-PATH = r"../resources_old"
-URL = "http://server:8080"
-URL = "http://localhost:8080"
+URL = os.getenv("SERVER_URL", "https://localhost:8080")
 
 def run():
     st.title("Hebrew Safe Harbor demo application")

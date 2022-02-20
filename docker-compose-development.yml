@@ -11,7 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   demo:
-    image: hebsafeharbor/demo_application:latest
+    build: demo
     container_name: "demo"
     labels:
       - "traefik.enable=true"
@@ -22,7 +22,7 @@ services:
       - server
 
   server:
-    image: hebsafeharbor/hebsafeharbor:latest
+    build: .
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=Host(`server.localhost`)"

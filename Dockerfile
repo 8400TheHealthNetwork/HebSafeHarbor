@@ -12,6 +12,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt ./
 COPY requirements_server.txt ./
 COPY setup.py ./
+COPY README.md ./
 COPY hebsafeharbor ./hebsafeharbor
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt --no-cache-dir
@@ -21,7 +22,7 @@ RUN python3 setup.py install
 
 FROM python:3.9-slim AS build-image
 WORKDIR /usr/src/app
-COPY hch_service.py ./
+COPY hsh_service.py ./
 COPY server.py ./
 COPY --from=compile-image /opt/venv /opt/venv
 # Make sure we use the virtualenv:
