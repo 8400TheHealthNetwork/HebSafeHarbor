@@ -6,13 +6,26 @@ A de-identification toolkit for clinical text in Hebrew.
 
 HebSafeHarbor was developed according to the requirements described in הצעה למתווה התממה של טקסט רפואי - נמל מבטחים (read more [here](docs/))
 
-The toolkit integrates and uses multiple open source libraries and assets, including [HebSpacy](https://github.com/8400TheHealthNetwork/HebSpacy), [Presidio](https://microsoft.github.io/presidio/) and lexicons from MOH
+The toolkit integrates and uses open source libraries and assets, including [HebSpacy](https://github.com/8400TheHealthNetwork/HebSpacy), [Presidio](https://microsoft.github.io/presidio/), Wikipedia and public lexicons.
 
 
 
 ## Installation
 
-To install the package, clone the repo and install all dependencies, preferably in a virtual environment:
+To install the package, run the following commands - preferably in a virtual environment
+``` sh
+# Create conda env (optional)
+conda create --name hebsafeharbor python=3.8
+conda activate hebsafeharbor
+
+# Install HebSafeHarbor
+pip install hebsafeharbor
+
+# Download the he_ner_news_trf model used by hebsafeharbor
+pip install https://github.com/8400TheHealthNetwork/HebSpacy/releases/download/he_ner_news_trf-3.2.1/he_ner_news_trf-3.2.1-py3-none-any.whl
+```
+
+Alternatively, you may clone the repo and install all dependencies:
 
 ``` sh
 # Create conda env (optional)
@@ -71,16 +84,22 @@ docker run -d -p 8501:8501 hebsafeharbor/demo_application:latest
 Navigate to `localhost:8501` to access the demo application.
 
 ### Docker Compose
-HebSafeHarbor and the demo application containers are also available in docker-compose.
-Run the following command in the root directory to run the latest containers from Docker Hub
+HebSafeHarbor and the demo application containers are also available in docker-compose setup.
+
+Run the `docker-compose` command against the `docker-compose.yml` file in the root directory to get the latest containers from Docker Hub
 ```sh
 docker-compose up -d --build
 ```
 Navigate in the browser to <https://server.localhost/docs> to access the service swagger.
-Navigate in the browser to <http://demo.localhost> to test the demo application.
+Navigate in the browser to <https://demo.localhost> to test the demo application.
 
 
-# TODO 
+#### Development mode
+To run the containers against the repo's code, run the following command:
 ```sh
 docker-compose -f docker-compose-development.yml up -d --build
 ```
+
+-----
+
+HebSpaCy is an open-source project developed by [8400 The Health Network](https://www.8400thn.org/).
