@@ -102,4 +102,4 @@ docker-compose -f docker-compose-development.yml up -d --build
 
 -----
 
-HebSpaCy is an open-source project developed by [8400 The Health Network](https://www.8400thn.org/).
+HebSafeHarbor is an open-source project developed by [8400 The Health Network](https://www.8400thn.org/).
