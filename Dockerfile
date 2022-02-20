@@ -12,6 +12,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt ./
 COPY requirements_server.txt ./
 COPY setup.py ./
+COPY README.md ./
 COPY hebsafeharbor ./hebsafeharbor
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt --no-cache-dir
