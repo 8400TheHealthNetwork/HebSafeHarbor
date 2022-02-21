@@ -8,7 +8,7 @@ st.set_page_config(layout="wide", page_title="Hebrew Safe Harbor", initial_sideb
 from visualizer import visualize_response
 
 DEFAULT_TEXT = "גדעון לבנה הגיע היום לבית החולים שערי צדק עם תלונות על כאבים בחזה"
-URL = os.getenv("SERVER_URL", "https://localhost:8080")
+URL = os.getenv("SERVER_URL", "http://localhost:8000")
 
 def run():
     st.title("Hebrew Safe Harbor demo application")
@@ -29,6 +29,7 @@ def run():
 
         if submitted:
             if text is not None and len(text) > 0:
+                print(URL)
                 response = requests.post(f"{URL}/query", json=req_data)
                 content = json.loads(response.content)
 
