@@ -1,6 +1,6 @@
 import re
 from typing import List
-from hebsafeharbor.common.date_regex import HEB_DATE_REGEX, LATIN_DATE_REGEX
+from hebsafeharbor.common.date_regex import HEB_FULL_DATE_REGEX, HEB_MONTH_YEAR_REGEX, HEB_DAY_MONTH_REGEX, LATIN_DATE_REGEX
 MIN_DATE_LENGTH = 6
 
 class DateMentionComponent:
@@ -65,10 +65,13 @@ def set_date_mention_component(matched:re.Match,ind:int) -> DateMentionComponent
     Extracts the date and its span from a regular expression and sets a DateMentionComponent 
     instance accordingly.
     :param matched: a re.Match instance containing the groups of a regular expression
-    :param ind: the index of the group we would like to retrieve
+    :param ind: the index of the group we would like to retrieve. if ind<1, return an empty instance
     :return: a DateMentionComponent instance
     '''
-    return DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1])
+    date_instance = (
+        DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind>0 else None
+    )
+    return date_instance
 
 def set_date_mention(matched:re.Match,group_order:List[int]) -> DateMention:
     '''
@@ -99,10 +102,20 @@ def extract_date_components(text: str) -> DateMention:
         return DateMention()
 
     #Hebrew dates
-    heb_pattern = HEB_DATE_REGEX
+    heb_pattern = HEB_FULL_DATE_REGEX
     matched = re.search(heb_pattern,text)
     if matched:
         return set_date_mention(matched,group_order=[1,2,3])
+
+    heb_pattern = HEB_MONTH_YEAR_REGEX
+    matched = re.search(heb_pattern,text)
+    if matched:
+        return set_date_mention(matched,group_order=[-1,1,2])
+
+    heb_pattern = HEB_DAY_MONTH_REGEX
+    matched = re.search(heb_pattern,text)
+    if matched:
+        return set_date_mention(matched,group_order=[1,2,-1])
         
     #Latin dates
     latin_pattern = LATIN_DATE_REGEX
