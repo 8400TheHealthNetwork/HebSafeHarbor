@@ -10,7 +10,7 @@ and tagma (Q1402830)
 You can explore wikidata for ideas of relevant categories https://www.wikidata.org/wiki/Wikidata:Main_Page
 
 Usage example:
-python wikidata_lexicon_extractor.py Q515 cities_lexicon.py CITIES_LEXICON
+python wikidata_lexicon_extractor.py Q515 cities_lexicon
 """
 
 from typing import List
@@ -20,11 +20,12 @@ import json
 import argparse
 
 WIKI_DATA_URL = 'https://query.wikidata.org/sparql'
+RELEVANT_RELATIONS = ["P31", "P279"]
 QUERY_TEMPLATE = """
 SELECT ?item ?itemLabel ?itemAltLabel
 WHERE 
 {
-  ?item wdt:P31 wd:<WIKI_ID>.
+  ?item wdt:<RELATION> wd:<WIKI_ID>.
   SERVICE wikibase:label { bd:serviceParam wikibase:language "he". } # Helps get the label in your language, if not, then en language
 }
 """
@@ -34,9 +35,13 @@ HE_LETTERS_RE = re.compile(r"[ \-א-ת0-9]") # used to clean "nikud"
 
 
 def wikidata_query(wiki_id: str):
-    r = requests.get(WIKI_DATA_URL, params={'format': 'json', 'query': QUERY_TEMPLATE.replace("<WIKI_ID>", wiki_id)})
-    data = r.json()
-    return data["results"]['bindings']
+    data = []
+    for relation in RELEVANT_RELATIONS:
+        r = requests.get(WIKI_DATA_URL, params={
+            'format': 'json', 
+            'query': QUERY_TEMPLATE.replace("<WIKI_ID>", wiki_id).replace("<RELATION>", relation)})
+        data += r.json()["results"]['bindings']
+    return data
 
 
 def process_wikidata_response(data: List) -> List[str]:
@@ -70,9 +75,9 @@ def main(wiki_id: str, output_file: str, lexicon_name: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('wiki_id', help="a wikiID you want to list all instances of")
-    parser.add_argument('output_file', help="output python file")
-    parser.add_argument('lexicon_name', help="variable name in python file")
+    parser.add_argument('lexicon_name', help="the name of the lexicon (will be used for output python file and variable inside it")
 
     args = parser.parse_args()
-
-    main(args.wiki_id, args.output_file, args.lexicon_name)
+    output_file = args.lexicon_name + ".py"
+    lexicon_name = args.lexicon_name.upper()
+    main(args.wiki_id, output_file, lexicon_name)
