@@ -195,8 +195,8 @@ Run the `docker-compose` command against the `docker-compose.yml` file in the ro
 ```sh
 docker-compose up -d --build
 ```
-Navigate in the browser to <https://server.localhost/docs> to access the service swagger.
-Navigate in the browser to <https://demo.localhost> to test the demo application.
+Navigate in the browser to <http://server.localhost/docs> to access the service swagger.
+Navigate in the browser to <http://demo.localhost> to test the demo application.
 
 
 #### Development mode
