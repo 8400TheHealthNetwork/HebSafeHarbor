@@ -121,8 +121,8 @@ class PhiIdentifier:
         # init latin dates
         ner_signals.append(HebLatinDateRecognizer())
         # init Hebrew country recognizer
-        # ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
-        #                                           allowed_prepositions=LOCATION_PREPOSITIONS))
+        ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
+                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
         # init Hebrew city recognizer
         # ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
         #                                           set(BELOW_THRESHOLD_CITIES_LIST).union(

@@ -4,6 +4,9 @@ from presidio_analyzer import RecognizerResult
 
 from hebsafeharbor import Doc
 from hebsafeharbor.common.prepositions import DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS
+from hebsafeharbor.common.terms_recognizer import TermsRecognizer
+from hebsafeharbor.identifier.consolidation.consolidation_config import CATEGORY_TO_CONTEXT_PHRASES, \
+    ENTITY_TYPE_TO_CATEGORY
 from hebsafeharbor.identifier.consolidation.post_consolidation.post_consolidator_rule import PostConsolidatorRule
 
 
@@ -33,21 +36,25 @@ class MedicalPostConsolidator(PostConsolidatorRule):
         :param custom_entities: list of recognized medical entities
         :param doc: document which stores the recognized entities
         """
-        if len(custom_entities) == 0:
-            return consolidated_entities
 
-        offset_to_medical_entity = MedicalPostConsolidator.map_offset_to_entity(custom_entities)
-        post_consolidated_entities = []
-        for entity in consolidated_entities:
-            if entity.entity_type in self.lower_preference_entity_types:
-                overlapping_medical_entities = MedicalPostConsolidator.get_entities_in_span(offset_to_medical_entity,
-                                                                                            entity.start, entity.end)
-                if len(overlapping_medical_entities) == 0 or not any(
-                        self.is_full_overlap(entity, medical_entity, doc) for medical_entity in
-                        overlapping_medical_entities):
+        if len(custom_entities) > 0:
+            post_consolidated_entities = []
+            offset_to_medical_entity = MedicalPostConsolidator.map_offset_to_entity(custom_entities)
+            for entity in consolidated_entities:
+                if entity.entity_type in self.lower_preference_entity_types:
+                    overlapping_medical_entities = MedicalPostConsolidator.get_entities_in_span(offset_to_medical_entity,
+                                                                                                entity.start, entity.end)
+                    if len(overlapping_medical_entities) == 0 or not any(
+                            self.is_full_overlap(entity, medical_entity, doc) for medical_entity in
+                            overlapping_medical_entities):
+                        post_consolidated_entities.append(entity)
+                else:
                     post_consolidated_entities.append(entity)
-            else:
-                post_consolidated_entities.append(entity)
+        else:
+            post_consolidated_entities = consolidated_entities
+
+        post_consolidated_entities = self.infer_by_context(doc, post_consolidated_entities)
+        post_consolidated_entities = self.remove_person_not_in_beginning(doc, post_consolidated_entities)
 
         return post_consolidated_entities
 
@@ -100,3 +107,35 @@ class MedicalPostConsolidator(PostConsolidatorRule):
             if i in offset_to_entity:
                 entities.append(offset_to_entity[i])
         return set(entities)
+
+    def infer_by_context(self, doc: Doc, consolidated_entities: List[RecognizerResult]):
+        medical_rec = TermsRecognizer(CATEGORY_TO_CONTEXT_PHRASES["MEDICAL"])
+        offsets = medical_rec(doc.text, list(self.medical_prepositions))
+        end_offsets = list(map(lambda offset: offset[0] + offset[1] - 1, offsets))
+        res = []
+        for entity in consolidated_entities:
+            if entity.entity_type in self.lower_preference_entity_types:
+                preceding = list(filter(lambda offset: offset < entity.start, end_offsets))
+                if not any(entity.start - end_offset <= 15 for end_offset in preceding):
+                    res.append(entity)
+            else:
+                res.append(entity)
+        return res
+
+    def remove_person_not_in_beginning(self, doc: Doc, consolidated_entities: List[RecognizerResult]):
+        healthcare_professional = ["ד\"ר", "דר", "דוקטור", "פרופסור", "פרופ\'", "פרופ", "רופא"]
+        healthcare_professional_rec = TermsRecognizer(healthcare_professional)
+        offsets = healthcare_professional_rec(doc.text, list(self.medical_prepositions))
+        end_offsets = list(map(lambda offset: offset[0] + offset[1] - 1, offsets))
+        res = []
+        for entity in consolidated_entities:
+            if ENTITY_TYPE_TO_CATEGORY[entity.entity_type] == "NAME":
+                if entity.start >= int(0.2 * len(doc.text)):
+                    preceding = list(filter(lambda offset: offset < entity.start, end_offsets))
+                    if any(entity.start - end_offset <= 5 for end_offset in preceding):
+                        res.append(entity)
+                else:
+                    res.append(entity)
+            else:
+                res.append(entity)
+        return res

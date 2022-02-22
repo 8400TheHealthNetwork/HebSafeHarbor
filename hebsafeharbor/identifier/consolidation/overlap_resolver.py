@@ -72,9 +72,8 @@ class ContextBasedResolver(OverlapResolver):
 
         for index, entity in enumerate(entities_in_conflict):
             entity_category = ENTITY_TYPE_TO_CATEGORY[entity.entity_type]
-            if len(category_to_end_offsets[entity_category]) > 0 and any(
-                    entity.start - end_offset <= self.window_size for end_offset in
-                    category_to_end_offsets[entity_category]):
+            preceding = list(filter(lambda offset: offset < entity.start, category_to_end_offsets[entity_category]))
+            if len(preceding) > 0 and any(entity.start - end_offset <= self.window_size for end_offset in preceding):
                 return entity
 
         # in case that there are no indicators in context, return the longest entity

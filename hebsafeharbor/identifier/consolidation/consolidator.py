@@ -1,4 +1,5 @@
 import copy
+import re
 from typing import List
 
 from presidio_analyzer import RecognizerResult
@@ -7,7 +8,8 @@ from hebsafeharbor.common.document import Doc
 from hebsafeharbor.identifier.consolidation.conflict_handler import ExactMatch, SameCategory, SameBoundaries, Mixed
 from hebsafeharbor.identifier.consolidation.consolidation_config import ENTITY_TYPE_TO_CATEGORY, ENTITY_TYPES_TO_IGNORE, \
     ConflictCase, ENTITY_TYPES_TO_POSTPROCESS
-from hebsafeharbor.identifier.consolidation.post_consolidation.city_country_post_consolidator import CityCountryPostConsolidator
+from hebsafeharbor.identifier.consolidation.post_consolidation.city_country_post_consolidator import \
+    CityCountryPostConsolidator
 from hebsafeharbor.identifier.consolidation.overlap_resolver import PreferLongestEntity, ContextBasedResolver, \
     CategoryMajorityResolver
 from hebsafeharbor.identifier.consolidation.post_consolidation.medical_post_consolidator import MedicalPostConsolidator
@@ -44,6 +46,13 @@ class NerConsolidator:
         filtered_entities = filter(
             lambda entity: entity.entity_type not in ENTITY_TYPES_TO_IGNORE.union(ENTITY_TYPES_TO_POSTPROCESS),
             recognized_entities)
+
+        # filter out entities from that contains at least one English letter
+        english_check = re.compile(r"[a-z]|[A-z]")
+        filtered_entities = filter(lambda entity: english_check.search(doc.text[entity.start:entity.end]) is None or (
+                    english_check.search(doc.text[entity.start:entity.end]) and ENTITY_TYPE_TO_CATEGORY[
+                entity.entity_type] not in ["ORG", "NAME"]),
+                                   filtered_entities)
 
         filtered_entities = sorted(filtered_entities, key=lambda entity: (entity.start, entity.end))
         group = self.get_next_overlapped_entities_group(filtered_entities, 0)
