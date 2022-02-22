@@ -28,5 +28,5 @@ COPY --from=compile-image /opt/venv /opt/venv
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
 #run server and expose port 8000 for listening
-EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT ["python","server.py"]

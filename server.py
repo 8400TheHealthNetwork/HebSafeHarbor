@@ -1,3 +1,4 @@
+from distutils.log import debug
 from typing import List, Dict, Union
 
 import uvicorn
@@ -144,4 +145,4 @@ def ready(response: Response):
 hsh_service.load_async()
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)

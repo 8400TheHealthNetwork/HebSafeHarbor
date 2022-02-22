@@ -52,8 +52,9 @@ def process_wikidata_response(data: List) -> List[str]:
     return list(all_names)
 
 
-def save_python_file(all_names: List[str], output_file: str, lexicon_name: str):
+def save_python_file(wiki_id: str, all_names: List[str], output_file: str, lexicon_name: str):
     with open(output_file, 'w', encoding="utf-8") as fp:
+        fp.write(f"# wiki-id: {wiki_id}\n")
         fp.write(f"{lexicon_name} = [\n")
         for name in all_names:
             fp.write(f'\t"{name}",\n')
@@ -63,7 +64,7 @@ def save_python_file(all_names: List[str], output_file: str, lexicon_name: str):
 def main(wiki_id: str, output_file: str, lexicon_name: str):
     data = wikidata_query(wiki_id)
     all_names = process_wikidata_response(data)
-    save_python_file(all_names, output_file, lexicon_name)
+    save_python_file(wiki_id, all_names, output_file, lexicon_name)
 
 
 if __name__ == "__main__":
