@@ -59,6 +59,7 @@ output = hsh([doc])
 print(output)
 ```
 
+## Server
 ### Local REST endpoint
 HebSafeHarbor can be consumed as a REST endpoint for the service powered by the [FastAPI](https://fastapi.tiangolo.com/) library.
 To run the service locally, you will need to first install the environment requirements as follows:  
@@ -85,14 +86,14 @@ Now go to http://127.0.0.1:8000/docs to see interactive API documentation (Swagg
 
 Alternatively, you can query the service directly by send POST requests to http://127.0.0.1:8000/query with the payload as described in the API documentation.
 
-### Docker
+### Server Docker
 To download and run the official release as a Docker container, run the following commands:
 ```bash
 # Download image 
 docker pull hebsafeharbor/hebsafeharbor
 
 # Run container
-docker run -d -p 8000:8000 hebsafeharbor/hebsafeharbor:latest
+docker run --name hsh_server -d -p 8000:8000 hebsafeharbor/hebsafeharbor:latest
 ```
 
 Alternatively, you can build and run the Docker container:
@@ -101,7 +102,7 @@ Alternatively, you can build and run the Docker container:
 docker build ./ --tag hebsafeharbor_server
 
 # Run container
-docker run -d -p 8000:8000 hebsafeharbor_server
+docker run --name hsh_server -d -p 8000:8000 hebsafeharbor_server
 ```
 Navigate to http://localhost:8000 to validate the service is up and running. Similarly, you can go to http://localhost:8000/docs and http://localhost:8000/query.
 
@@ -115,11 +116,41 @@ In order for the demo to work and interact with the server application, you will
 For example, assuming you are running the server as docker container:
 ```
 [For Windows]
-$env:HSH_SERVER="http://localhost:8080"
+$env:HSH_SERVER="http://localhost:8000"
 
 [For Linux]
-export HSH_SERVER=http://localhost:8080
+export HSH_SERVER=http://localhost:8000
 ```
+
+#### Find out what is the server (Docker container) IP address 
+Run the `network inspect bridge` command to get networking information regarding running dockers
+
+```sh
+docker network inspect bridge
+```
+Your response should look like the following:
+```sh
+[
+    {
+        "Name": "bridge",
+        ...
+        "Containers": {
+            "9611cad28701cfe0877c2bfed9ad2710202492de6d574d42a6714f439cf4f2d2": {
+                "Name": "hsh_server",
+                ...
+                "IPv4Address": "172.17.0.2/16",
+                ...
+            }
+        },
+      ...
+    }
+]
+```
+The IP address is under `IPv4Address` associated with `"Name": "hsh_server"` container under `Containers`. 
+In our case, **HSH_SERVER = 172.17.0.2**
+
+
+Read more [here](https://docs.docker.com/network/network-tutorial-standalone/)
 
 ### Run locally
 To run the demo locally, first install the requirements as follows:
@@ -137,36 +168,35 @@ streamlit run demo/demo_app.py
 ```
 Now go to http://localhost:8501 to access the application
 
-### Docker
+### Demo Docker
 To download the official Docker container, run the following commands:
 ```sh
 # Download image
 docker pull hebsafeharbor/demo_application
 
-# Run containers with default port
-docker run -d -p 8501:8501 hebsafeharbor/demo_application:latest -e HSH_SERVER=<SERVICE URL>
+# Run container - replace <SERVICE URL> with server url (e.g.,docker run -d -e HSH_SERVER=http://172.17.0.2:8000 -p 8501:8501 hebsafeharbor/demo_application:latest)
+docker run --name hsh_demo -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor/demo_application:latest
 ```
 Alternatively, you can build and run the Docker container:
 ```bash
 # Build image 
-docker build demo/. --tag hebsafeharbor_demo
+docker build --name hsh_demo demo/. --tag hebsafeharbor_demo
 
-# Run container
-docker run -d -p 8501:8501 hebsafeharbor_demo -e HSH_SERVER=<SERVICE URL>
+# Run container - replace <SERVICE URL> with server url (e.g.,docker run -d -e HSH_SERVER=http://172.17.0.2:8000 -p 8501:8501 hebsafeharbor_demo)
+docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor_demo 
 ```
-**In case you are running the server as a Docker container, consider following the networking documentation [here](https://docs.docker.com/network/network-tutorial-standalone/)**
 
 Navigate to http://localhost:8501 to access the demo application.
 
-### Docker Compose
+## Docker Compose
 You may also consume the service and the demo application through `docker-compose` setup.
 
 Run the `docker-compose` command against the `docker-compose.yml` file in the root directory to get the latest containers from Docker Hub
 ```sh
 docker-compose up -d --build
 ```
-Navigate in the browser to <https://server.localhost/docs> to access the service swagger.
-Navigate in the browser to <https://demo.localhost> to test the demo application.
+Navigate in the browser to <http://server.localhost/docs> to access the service swagger.
+Navigate in the browser to <http://demo.localhost> to test the demo application.
 
 
 #### Development mode
