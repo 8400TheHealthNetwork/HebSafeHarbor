@@ -59,6 +59,7 @@ output = hsh([doc])
 print(output)
 ```
 
+## Server
 ### Local REST endpoint
 HebSafeHarbor can be consumed as a REST endpoint for the service powered by the [FastAPI](https://fastapi.tiangolo.com/) library.
 To run the service locally, you will need to first install the environment requirements as follows:  
@@ -133,21 +134,19 @@ Your response should look like the following:
     {
         "Name": "bridge",
         ...
-        "ConfigOnly": false,
         "Containers": {
             "9611cad28701cfe0877c2bfed9ad2710202492de6d574d42a6714f439cf4f2d2": {
-                "Name": "server",
-                "EndpointID": "fe0e9291650847863e4977975a6418890e2d48e438e8bfe7439eca47c196c29b",
-                "MacAddress": "02:42:ac:11:00:02",
+                "Name": "hsh_server",
+                ...
                 "IPv4Address": "172.17.0.2/16",
-                "IPv6Address": ""
+                ...
             }
         },
       ...
     }
 ]
 ```
-The IP address is under `IPv4Address` associated with `"Name": "server"` container under `Containers`. 
+The IP address is under `IPv4Address` associated with `"Name": "hsh_server"` container under `Containers`. 
 In our case, **HSH_SERVER = 172.17.0.2**
 
 
@@ -189,7 +188,7 @@ docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor_demo
 
 Navigate to http://localhost:8501 to access the demo application.
 
-### Docker Compose
+## Docker Compose
 You may also consume the service and the demo application through `docker-compose` setup.
 
 Run the `docker-compose` command against the `docker-compose.yml` file in the root directory to get the latest containers from Docker Hub
