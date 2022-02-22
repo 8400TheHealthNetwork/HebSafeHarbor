@@ -10,13 +10,13 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.txt ./
-COPY requirements_server.txt ./
+COPY requirements-server.txt ./
 COPY setup.py ./
 COPY README.md ./
 COPY hebsafeharbor ./hebsafeharbor
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt --no-cache-dir
-RUN python3 -m pip install -r requirements_server.txt --no-cache-dir
+RUN python3 -m pip install -r requirements-server.txt --no-cache-dir
 RUN python3 setup.py install
 
 
