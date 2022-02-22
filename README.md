@@ -85,7 +85,7 @@ Now go to http://127.0.0.1:8000/docs to see interactive API documentation (Swagg
 
 Alternatively, you can query the service directly by send POST requests to http://127.0.0.1:8000/query with the payload as described in the API documentation.
 
-### Docker
+### Server Docker
 To download and run the official release as a Docker container, run the following commands:
 ```bash
 # Download image 
@@ -115,12 +115,13 @@ In order for the demo to work and interact with the server application, you will
 For example, assuming you are running the server as docker container:
 ```
 [For Windows]
-$env:HSH_SERVER="http://localhost:8080"
+$env:HSH_SERVER="http://localhost:8000"
 
 [For Linux]
-export HSH_SERVER=http://localhost:8080
+export HSH_SERVER=http://localhost:8000
 ```
 
+**In the server is running as a Docker container, consider following the official this [tutorial](https://docs.docker.com/network/network-tutorial-standalone/) to identify its IP address**
 ### Run locally
 To run the demo locally, first install the requirements as follows:
 ``` sh
@@ -137,24 +138,23 @@ streamlit run demo/demo_app.py
 ```
 Now go to http://localhost:8501 to access the application
 
-### Docker
+### Demo Docker
 To download the official Docker container, run the following commands:
 ```sh
 # Download image
 docker pull hebsafeharbor/demo_application
 
 # Run containers with default port
-docker run -d -p 8501:8501 hebsafeharbor/demo_application:latest -e HSH_SERVER=<SERVICE URL>
+docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor/demo_application:latest
 ```
 Alternatively, you can build and run the Docker container:
 ```bash
 # Build image 
 docker build demo/. --tag hebsafeharbor_demo
 
-# Run container
-docker run -d -p 8501:8501 hebsafeharbor_demo -e HSH_SERVER=<SERVICE URL>
+# Run container - replace <SERVICE URL> with server url (e.g., HSH_SERVER=http://172.17.0.2:8000)
+docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor_demo 
 ```
-**In case you are running the server as a Docker container, consider following the networking documentation [here](https://docs.docker.com/network/network-tutorial-standalone/)**
 
 Navigate to http://localhost:8501 to access the demo application.
 
