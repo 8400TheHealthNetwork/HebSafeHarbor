@@ -92,7 +92,7 @@ To download and run the official release as a Docker container, run the followin
 docker pull hebsafeharbor/hebsafeharbor
 
 # Run container
-docker run -d -p 8000:8000 hebsafeharbor/hebsafeharbor:latest
+docker run --name hsh_server -d -p 8000:8000 hebsafeharbor/hebsafeharbor:latest
 ```
 
 Alternatively, you can build and run the Docker container:
@@ -101,7 +101,7 @@ Alternatively, you can build and run the Docker container:
 docker build ./ --tag hebsafeharbor_server
 
 # Run container
-docker run -d -p 8000:8000 hebsafeharbor_server
+docker run --name hsh_server -d -p 8000:8000 hebsafeharbor_server
 ```
 Navigate to http://localhost:8000 to validate the service is up and running. Similarly, you can go to http://localhost:8000/docs and http://localhost:8000/query.
 
@@ -121,7 +121,38 @@ $env:HSH_SERVER="http://localhost:8000"
 export HSH_SERVER=http://localhost:8000
 ```
 
-**Iכ the server is running as a Docker container, consider following the official this [tutorial](https://docs.docker.com/network/network-tutorial-standalone/) to identify its IP address**
+#### Find out what is the server (Docker container) IP address 
+Run the `network inspect bridge` command to get networking information regarding running dockers
+
+```sh
+docker network inspect bridge
+```
+Your response should look like the following:
+```sh
+[
+    {
+        "Name": "bridge",
+        ...
+        "ConfigOnly": false,
+        "Containers": {
+            "9611cad28701cfe0877c2bfed9ad2710202492de6d574d42a6714f439cf4f2d2": {
+                "Name": "server",
+                "EndpointID": "fe0e9291650847863e4977975a6418890e2d48e438e8bfe7439eca47c196c29b",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+      ...
+    }
+]
+```
+The IP address is under `IPv4Address` associated with `"Name": "server"` container under `Containers`. 
+In our case, **HSH_SERVER = 172.17.0.2**
+
+
+Read more [here](https://docs.docker.com/network/network-tutorial-standalone/)
+
 ### Run locally
 To run the demo locally, first install the requirements as follows:
 ``` sh
@@ -144,15 +175,15 @@ To download the official Docker container, run the following commands:
 # Download image
 docker pull hebsafeharbor/demo_application
 
-# Run containers with default port
-docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor/demo_application:latest
+# Run container - replace <SERVICE URL> with server url (e.g.,docker run -d -e HSH_SERVER=http://172.17.0.2:8000 -p 8501:8501 hebsafeharbor/demo_application:latest)
+docker run --name hsh_demo -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor/demo_application:latest
 ```
 Alternatively, you can build and run the Docker container:
 ```bash
 # Build image 
-docker build demo/. --tag hebsafeharbor_demo
+docker build --name hsh_demo demo/. --tag hebsafeharbor_demo
 
-# Run container - replace <SERVICE URL> with server url (e.g., HSH_SERVER=http://172.17.0.2:8000)
+# Run container - replace <SERVICE URL> with server url (e.g.,docker run -d -e HSH_SERVER=http://172.17.0.2:8000 -p 8501:8501 hebsafeharbor_demo)
 docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor_demo 
 ```
 
