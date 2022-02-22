@@ -29,7 +29,6 @@ def run():
 
         if submitted:
             if text is not None and len(text) > 0:
-                print(URL)
                 response = requests.post(f"{URL}/query", json=req_data)
                 content = json.loads(response.content)
 

@@ -17,7 +17,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.demo.rule=Host(`demo.localhost`)"
     environment:
-      - SERVER_URL=server
+      - HSH_SERVER=server
     depends_on:
       - server
 
