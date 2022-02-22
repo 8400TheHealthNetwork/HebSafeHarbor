@@ -162,7 +162,7 @@ def set_numerical_date(text:str) -> Optional[DateMention]:
             return DateMention(day=day,month=month,text=text)        
         else:
             if int(matched.group(1))>31:        
-                year = set_date_mention(matched,ind=1)
+                year = set_date_mention_component(matched,ind=1)
                 if int(matched.group(2))>12:
                     month = set_date_mention_component(matched,ind=3)
                     day = set_date_mention_component(matched,ind=2)
