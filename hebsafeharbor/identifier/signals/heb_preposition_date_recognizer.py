@@ -1,6 +1,8 @@
 from typing import Optional, List
 from presidio_analyzer.predefined_recognizers import DateRecognizer
 from presidio_analyzer import Pattern
+from hebsafeharbor.common.date_regex import EN_DMY_REGEX,EN_MDY_REGEX,EN_YMD_REGEX
+
 
 class PrepositionDateRecognizer(DateRecognizer):
     """
@@ -19,10 +21,24 @@ class PrepositionDateRecognizer(DateRecognizer):
         for p in patterns:
             pattern_dict = p.to_dict()
             pattern = pattern_dict['regex']
-            new_regex = pattern[:pattern.index(r'\b')+2] + '(?:ה|ב|מ|מה?)' + pattern[pattern.index(r'\b')+2:]
+            new_regex = pattern[:pattern.index(r'\b')+2] + '(?:ה|ב|מ|מה)?' + pattern[pattern.index(r'\b')+2:]
             pattern_dict['regex'] = new_regex
             AUG_PATTERNS.append(Pattern.from_dict(pattern_dict))
-        
+
+        # continuous date (10122018)
+        PATTERNS = [Pattern(
+            "ddmmyyyy or ddmmyy",
+            EN_DMY_REGEX,
+            0.6),   
+            Pattern(
+            "mmddyyyy or mmddyy",
+            EN_DMY_REGEX,
+            0.6),
+            Pattern(
+            "yyyymmdd or yymmdd",
+            EN_YMD_REGEX,
+            0.6)]          
+        AUG_PATTERNS = AUG_PATTERNS + PATTERNS
         super().__init__(
             supported_entity=supported_entity,
             patterns=AUG_PATTERNS,
