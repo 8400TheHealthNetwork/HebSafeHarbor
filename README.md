@@ -121,7 +121,7 @@ $env:HSH_SERVER="http://localhost:8000"
 export HSH_SERVER=http://localhost:8000
 ```
 
-**In the server is running as a Docker container, consider following the official this [tutorial](https://docs.docker.com/network/network-tutorial-standalone/) to identify its IP address**
+**Iכ the server is running as a Docker container, consider following the official this [tutorial](https://docs.docker.com/network/network-tutorial-standalone/) to identify its IP address**
 ### Run locally
 To run the demo locally, first install the requirements as follows:
 ``` sh
