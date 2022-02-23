@@ -118,7 +118,7 @@ class PhiIdentifier:
         # init general id recognizer
         ner_signals.append(GeneralIdRecognizer())
         # init dates in hebrew
-        # ner_signals.append(HebDateRecognizer())
+        ner_signals.append(HebDateRecognizer())
         # init dates with preposition
         ner_signals.append(PrepositionDateRecognizer())
         # init latin dates
