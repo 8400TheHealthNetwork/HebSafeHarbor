@@ -27,10 +27,12 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
         :param supported_language: the language that the recognizer supports. Hebrew is the default
         :param allowed_prepositions: prepositions that allowed to be recognized as part of the entity (in addition to
         the lexicon phrase itself). Empty list (which means prepositions are not allowed) is the default
+        :param endorsing_entities: if recognized entity has overlap with at least one entity from this list,
+        its score increases
+        :param context: if any of words in the list are found around entity, its sore increases
         """
         super().__init__(name=name, supported_entity=supported_entity, phrase_list=phrase_list,
                          supported_language=supported_language, allowed_prepositions=allowed_prepositions)
-        # self.ambiguous_entities = phrase_list
         self.endorsing_entities = endorsing_entities
         self.context = context
 

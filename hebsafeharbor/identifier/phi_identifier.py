@@ -1,7 +1,8 @@
 from typing import List
 
 from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, \
-    ABBREVIATIONS_LIST, AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST
+    ABBREVIATIONS_LIST, AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST, \
+    AMBIGOUS_CITIES_CONTEXT
 from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
 from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS
@@ -140,22 +141,7 @@ class PhiIdentifier:
                                                          ambiguous_cities_set,
                                                          allowed_prepositions=LOCATION_PREPOSITIONS,
                                                          endorsing_entities=['LOC', 'GPE'],
-                                                         context=["תושב", "תושבת",
-                                                                  "מבקר", "ביקר", "מבקרת","ביקרה", "ביקרו", "לבקר",
-                                                                  "גר", "גרה", "גרו","לגור",
-                                                                  "מגיע", "מגיעה", "הגיע" "להגיע",
-                                                                  "הייה", "הייתה",
-                                                                  "נכנס", "נכנסה",
-                                                                  "זז", "זזה", "זזו", "לזוז",
-                                                                  "חוזר", "חזר", "חוזרת","חזרה","חזרו",
-                                                                  "טס", "טסה", "טסו", "טס",
-                                                                  "נוסע", "נסע", "נוסעת","נסעתה", "לנסוע",
-                                                                  "עובר", "עבר", "עוברת","עברה", "עברו", "לעבור",
-                                                                  "עוזב", "עזב", "עוזבת","עזבה", "עזבו", "לעזוב",
-                                                                  "עוצר", "עצר", "עוצרת","עצרה", "עוצרו", "לעצור",
-                                                                  "פוגש", "פגש", "פוגשת","פגשה", "פגשו", "לפגוש",
-                                                                  "עולה", "עלה","עלתה", "עלו", "לעלות",
-                                                                  ],
+                                                         context=AMBIGOUS_CITIES_CONTEXT,
                                                          ),
                            )
         # init disease recognizer
