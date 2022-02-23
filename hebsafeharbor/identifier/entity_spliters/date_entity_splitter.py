@@ -36,7 +36,8 @@ class DateEntitySplitter(EntitySplitter):
         birth_date_end_offsets = list(map(lambda offset: offset[0] + offset[1] - 1, birth_date_offsets))
 
         for entity in date_entities:
-            if any(entity.start - end_offset < DateEntitySplitter.WINDOW_SIZE for end_offset in birth_date_end_offsets):
+            preceding = list(filter(lambda offset: offset < entity.start, birth_date_end_offsets))
+            if any(entity.start - end_offset < DateEntitySplitter.WINDOW_SIZE for end_offset in preceding):
                 entity.entity_type = "BIRTH_DATE"
             else:
                 entity.entity_type = "MEDICAL_DATE"

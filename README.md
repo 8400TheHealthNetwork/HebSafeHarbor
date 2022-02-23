@@ -157,7 +157,7 @@ conda create --name hebsafeharbor_demo python=3.8
 conda activate hebsafeharbor_demo
 
 # Install dependencies
-pip install -r demo/requirements_streamlit.txt
+pip install -r demo/requirements-streamlit.txt
 ```
 Once installation is done, run the following command:
 ``` sh
