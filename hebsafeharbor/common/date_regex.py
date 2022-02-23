@@ -19,7 +19,7 @@ LATIN_DATE_REGEX =  rf"\b{preposition_re}?(?P<day>{num_days_re})?(?:\s+)?{month_
 en_abbrv_months_list = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec',]
 en_full_months_list = ['january','february','march','april','may','june','july','august','september','octber','november','december']
 en_month_re = '|'.join(en_abbrv_months_list+en_full_months_list)
-EN_DATE_REGEX = rf"\b(?P<month>{en_month_re})(?:\s|,\s)(?P<day>{num_days_re})(?:st|th|rd|nd)?(?:\s|,\s)?(?P<year>\d\d|\d\d\d\d)?\b"
+EN_DATE_REGEX = rf"\b(?P<month>(?i){en_month_re})(?:\s|,\s)(?P<day>{num_days_re})(?:st|th|rd|nd)?(?:\s|,\s)?(?P<year>\d\d|\d\d\d\d)?\b"
 
 # Dates with no punctuations (ddmmyyyy,mmddyyyy...)
 EN_DMY_REGEX = rf"\b{preposition_re}?(?:-|:)?(?P<day>[0-2][1-9]|[3[0-1]])(?P<month>1[1-2]|0[1-9])(?P<year>\d\d\d\d)\b"
