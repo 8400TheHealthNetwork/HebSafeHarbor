@@ -42,20 +42,8 @@ class NerConsolidator:
         """
 
         recognized_entities = copy.deepcopy(doc.smoothed_entities)
-        # filter out entities from irrelevant types
-        filtered_entities = filter(
-            lambda entity: entity.entity_type not in ENTITY_TYPES_TO_IGNORE.union(ENTITY_TYPES_TO_POSTPROCESS),
-            recognized_entities)
-
-        # filter out entities from that contains at least one English letter
-        english_check = re.compile(r"[a-z]|[A-z]")
-        filtered_entities = filter(lambda entity: english_check.search(doc.text[entity.start:entity.end]) is None or (
-                    english_check.search(doc.text[entity.start:entity.end]) and ENTITY_TYPE_TO_CATEGORY[
-                entity.entity_type] not in ["ORG", "NAME"]),
-                                   filtered_entities)
-
-        filtered_entities = sorted(filtered_entities, key=lambda entity: (entity.start, entity.end))
-        group = self.get_next_overlapped_entities_group(filtered_entities, 0)
+        filtered_entities = NerConsolidator.filter_entities(recognized_entities, doc)
+        group = NerConsolidator.get_next_overlapped_entities_group(filtered_entities, 0)
         consolidated_entities = []
         while len(group) > 0:
             selected_entity = self.consolidate_entities(group, doc)
@@ -65,7 +53,7 @@ class NerConsolidator:
             else:
                 consolidated_entities.append(selected_entity)
                 last_entity = selected_entity
-            group = self.get_next_overlapped_entities_group(filtered_entities, last_entity.end)
+            group = NerConsolidator.get_next_overlapped_entities_group(filtered_entities, last_entity.end)
 
         # trigger the custom entity consolidators
         for custom_consolidator in self.postprocess_consolidators:
@@ -78,7 +66,8 @@ class NerConsolidator:
         doc.consolidated_results = consolidated_entities
         return doc
 
-    def get_next_overlapped_entities_group(self, entities: List[RecognizerResult], start_offset: int) -> List[
+    @staticmethod
+    def get_next_overlapped_entities_group(entities: List[RecognizerResult], start_offset: int) -> List[
         RecognizerResult]:
         """
         Helper function for getting the next group of overlapped entities
@@ -101,7 +90,8 @@ class NerConsolidator:
                 return group
         return group
 
-    def keep_single_entity(self, entity: RecognizerResult, doc: Doc) -> bool:
+    @staticmethod
+    def keep_single_entity(entity: RecognizerResult, doc: Doc) -> bool:
         """
         Helper function which decides whether to keep an entity that doesn't overlap any other recognized entity
 
@@ -131,7 +121,7 @@ class NerConsolidator:
         # if there is only one entity in group there is no conflict - keep it in case it satisfying the minimal
         # requirements
         if len(entities_in_conflict) == 1:
-            if self.keep_single_entity(entities_in_conflict[0], doc):
+            if NerConsolidator.keep_single_entity(entities_in_conflict[0], doc):
                 return entities_in_conflict[0]
             else:
                 return None
@@ -160,3 +150,53 @@ class NerConsolidator:
         if same_boundaries:
             return ConflictCase.SAME_BOUNDARIES
         return ConflictCase.MIXED
+
+    @staticmethod
+    def filter_entities(recognized_entities: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
+        """
+        filters recognized entities that are not satisfy some initial requirements and therefore should not be
+        considered as part of the consolidation:
+        1. remove entities from irrelevant types
+        2. filter out ORG and NAME entities that contains at least one English letter
+        3. filter out DATE entities that are float number
+
+        :param recognized_entities: list of recognized entities
+        :param doc: Doc object
+        :return an updated list of recognized entities after filtering
+        """
+        # filter out entities from irrelevant types
+        filtered_entities = filter(
+            lambda entity: entity.entity_type not in ENTITY_TYPES_TO_IGNORE.union(ENTITY_TYPES_TO_POSTPROCESS),
+            recognized_entities)
+
+        # filter out ORG and NAME entities that contains at least one English letter
+        ENGLISH_LETTER_REGEX = re.compile(r"[a-z]|[A-z]")
+        filtered_entities = list(filter(
+            lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type] not in ["ORG",
+                                                                               "NAME"] or ENGLISH_LETTER_REGEX.search(
+                doc.text[entity.start:entity.end]) is None, filtered_entities))
+
+        # filter out DATE entities that are float number
+        result_entities = []
+        for entity in filtered_entities:
+            if ENTITY_TYPE_TO_CATEGORY[entity.entity_type] != "DATE":
+                result_entities.append(entity)
+            else:
+                entity_text = doc.text[entity.start:entity.end]
+                split_by_period = entity_text.split(".")
+                # if there aren't two parts it doesn't float number
+                if len(split_by_period) != 2:
+                    result_entities.append(entity)
+                else:
+                    # both parts should be numeric otherwise it is not a float number
+                    if not split_by_period[0].isnumeric() or not split_by_period[1].isnumeric():
+                        result_entities.append(entity)
+                    else:
+                        # leading zero is allowed in float number only if the first part is zero
+                        if len(split_by_period[0]) == 1:
+                            result_entities.append(entity)
+                        elif len(split_by_period[0]) > 1 and split_by_period[0][0] == "0":
+                            result_entities.append(entity)
+
+        filtered_entities = sorted(result_entities, key=lambda entity: (entity.start, entity.end))
+        return filtered_entities

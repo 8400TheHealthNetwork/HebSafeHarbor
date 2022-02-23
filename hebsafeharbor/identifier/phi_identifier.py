@@ -3,7 +3,8 @@ from typing import List
 from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, ABBREVIATIONS_LIST
 from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
-from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS
+from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS, \
+    MEDICAL_TEST_PREPOSITIONS
 from hebsafeharbor.identifier import HebSpacyNlpEngine
 from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
@@ -20,6 +21,8 @@ from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateR
 
 from hebsafeharbor.identifier.signals.lexicon_based_recognizer import LexiconBasedRecognizer
 from hebsafeharbor.lexicons.disease import DISEASES
+from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
+from hebsafeharbor.lexicons.medical_tests import MEDICAL_TESTS
 from hebsafeharbor.lexicons.medications import MEDICATIONS
 
 
@@ -135,6 +138,10 @@ class PhiIdentifier:
         ner_signals.append(
             LexiconBasedRecognizer("MedicationRecognizer", "MEDICATION", MEDICATIONS,
                                    allowed_prepositions=MEDICATION_PREPOSITIONS))
+        # init medical tests recognizer
+        ner_signals.append(
+            LexiconBasedRecognizer("MedicalTestRecognizer", "MEDICAL_TEST", MEDICAL_TESTS + MEDICAL_DEVICE,
+                                   allowed_prepositions=MEDICAL_TEST_PREPOSITIONS))
         return ner_signals
 
     def init_hebspacy_recognizer(self):
