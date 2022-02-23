@@ -21,8 +21,8 @@ class PrepositionDateRecognizer(DateRecognizer):
         for p in patterns:
             pattern_dict = p.to_dict()
             pattern = pattern_dict['regex']
-            new_regex = pattern[:pattern.index(r'\b')+2] + '(?:ה|ב|מ|מה)?' + pattern[pattern.index(r'\b')+2:]
-            pattern_dict['regex'] = new_regex
+            pattern_with_preposition = pattern[:pattern.index(r'\b')+2] + '(?:ה|ב|מ|מה)?' + pattern[pattern.index(r'\b')+2:]
+            pattern_dict['regex'] = pattern_with_preposition
             AUG_PATTERNS.append(Pattern.from_dict(pattern_dict))
 
         # continuous date (10122018)

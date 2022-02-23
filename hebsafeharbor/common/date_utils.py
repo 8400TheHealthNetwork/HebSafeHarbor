@@ -68,22 +68,20 @@ class DateMention:
         return masked_text
  
 
-def set_date_mention_component(matched:re.Match,ind:Union[int,str]) -> DateMentionComponent:
+def set_date_mention_component(matched:re.Match,ind:Union[int,str]) -> Optional[DateMentionComponent]:
     '''
     Extracts the date and its span from a regular expression and sets a DateMentionComponent 
     instance accordingly.
     :param matched: a re.Match instance containing the groups of a regular expression
-    :param ind: the index (or group name) of the group we would like to retrieve. if ind<1 (or group name not in the matched groups), return an empty instance
+    :param ind: the index (or group name) of the group we would like to retrieve. if ind<1 (or group name not in the matched groups), return None
     :return: a DateMentionComponent instance
     '''
     if type(ind) == int:
-        date_instance = (
-            DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind>0 else None
-        )
+        date_instance = DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind>0 else None
+        
     else:
-        date_instance = (
-            DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind in matched.groupdict() else None
-            )
+        date_instance = DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind in matched.groupdict() else None
+        
     return date_instance
 
 def set_date_mention_from_pattern_group_names(matched:re.Match) -> DateMention:
@@ -93,7 +91,6 @@ def set_date_mention_from_pattern_group_names(matched:re.Match) -> DateMention:
     :param matched: a re.Match instance containing the groups of a regular expression
     :return: a list of DateMentionComponent instances
     '''
-    matched_dict = matched.groupdict()
     day,month,year = [set_date_mention_component(matched,ind) for ind in ['day','month','year'] ]
     return DateMention(day=day,month=month, year=year,text=matched.string)
 
