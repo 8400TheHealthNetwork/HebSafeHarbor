@@ -13,6 +13,8 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
     if necessary.
     """
 
+    MINIMUM_CONFIDENCE_TO_RECOGNIZE = 0.5 #if final confidence score is below - exclude from entities
+
     def __init__(self):
         """
         Initializes CityCountryPostConsolidator
@@ -36,22 +38,39 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
         if len(custom_entities) == 0:
             return consolidated_entities
 
-        consolidated_entities.extend(custom_entities)
+        consolidated_entities.extend(
+            [entity for entity in custom_entities if entity.score >= self.MINIMUM_CONFIDENCE_TO_RECOGNIZE])
         consolidated_entities = self.sort_entities_by_offset_start(consolidated_entities)
 
-        for i in range(1, len(consolidated_entities)):
-            if consolidated_entities[i].start <= consolidated_entities[i-1].end:
-                if self.prioritized_entity_types.index(consolidated_entities[i].entity_type) <= \
-                        self.prioritized_entity_types.index(consolidated_entities[i-1].entity_type):
-                    if (consolidated_entities[i].start - consolidated_entities[i - 1].start) > 1 & (
-                            consolidated_entities[i - 1].end - consolidated_entities[i].end) >= 1:
-                        consolidated_entities[i].end = consolidated_entities[i].start
-                    else:
-                        consolidated_entities[i - 1].end = consolidated_entities[i].start
+        prev_entity_id = 0 # to handle cases where overlap is between more than 2 entities. Ex. שרון גשר מר"ג
+        for cur_entity_id in range(1, len(consolidated_entities)):
+            if consolidated_entities[cur_entity_id].start <= consolidated_entities[prev_entity_id].end:
+                # Define which entity type has priority
+                if self.prioritized_entity_types.index(consolidated_entities[cur_entity_id].entity_type) <= \
+                        self.prioritized_entity_types.index(consolidated_entities[prev_entity_id].entity_type):
+                    primary_entity_id = cur_entity_id
                 else:
-                    consolidated_entities[i].start = consolidated_entities[i - 1].end \
-                        if consolidated_entities[i - 1].end <= consolidated_entities[i].end \
-                        else consolidated_entities[i].end
+                    primary_entity_id = prev_entity_id
+
+                # If entity is within [from both sides] longer entity - we prefer longer entity regardless of priority
+                if (consolidated_entities[cur_entity_id].start - consolidated_entities[prev_entity_id].start) > 1 & (
+                        consolidated_entities[prev_entity_id].end - consolidated_entities[cur_entity_id].end) >= 1:
+                    consolidated_entities[cur_entity_id].end = consolidated_entities[cur_entity_id].start
+                    # prev_entity_id stays the same
+                # if current entity has priority, we'll adjust previous
+                elif cur_entity_id == primary_entity_id:
+                    consolidated_entities[prev_entity_id].end = consolidated_entities[cur_entity_id].start
+                    prev_entity_id = cur_entity_id
+                # if previous entity has priority, we'll adjust current
+                else:
+                    if consolidated_entities[prev_entity_id].end <= consolidated_entities[cur_entity_id].end:
+                        consolidated_entities[cur_entity_id].start = consolidated_entities[prev_entity_id].end
+                        prev_entity_id = cur_entity_id
+                    else:
+                        consolidated_entities[cur_entity_id].start = consolidated_entities[cur_entity_id].end
+                        # prev_entity_id stays the same
+            else:
+                prev_entity_id = cur_entity_id
 
         # .......            | ........            | ........... -> ........... | ........... -> ....******* |
         # ******* -> ******* |  ******* -> ******* |   ********                 |     *******                |
@@ -59,7 +78,8 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
         # ******* -> ******* | ********** -> ********** | ******** -> ********| ********  -> ********..|
         # .......            |   .....                  |  .......            |  .........             |
 
-        for entity in consolidated_entities:
+        # remove entity scraps
+        for entity in reversed(consolidated_entities):
             if (entity.entity_type in self.lower_preference_entity_types) | (
                     entity.entity_type in self.supported_entity_types):
                 if (entity.end - entity.start) == 0:
