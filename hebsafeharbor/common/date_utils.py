@@ -112,7 +112,7 @@ def extract_date_components(text: str) -> DateMention:
         return DateMention()
 
     # check if it's a numerical date (dd.mm.yyyy, mm-dd-yy etc.)
-    num_date = set_numerical_date(text)
+    num_date = extract_numerical_date_components(text)
     if num_date:
         return num_date
 
@@ -141,7 +141,7 @@ def find_pattern(text:str,patterns:List[str])-> Optional[re.Match]:
             return matched
     return None
 
-def set_numerical_date(text:str) -> Optional[DateMention]:
+def extract_numerical_date_components(text:str) -> Optional[DateMention]:
     '''
         Checks if the given text matches a numerical date pattern (dd.mm.yy, mm-dd-yyyy etc.) 
        :param text: the original text
