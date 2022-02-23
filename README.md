@@ -6,9 +6,11 @@ A de-identification toolkit for clinical text in Hebrew.
 
 HebSafeHarbor was developed according to the requirements described in הצעה למתווה התממה של טקסט רפואי - נמל מבטחים (read more [here](docs/))
 
-The toolkit integrates and uses open source libraries and assets, including [HebSpacy](https://github.com/8400TheHealthNetwork/HebSpacy), [Presidio](https://microsoft.github.io/presidio/), Wikipedia and public lexicons.
+The toolkit integrates and uses open source libraries and assets, including [HebSpacy](https://github.com/8400TheHealthNetwork/HebSpacy) (that runs NER model based on [AlephBERT](https://arxiv.org/pdf/2104.04052.pdf), [Nemo](https://github.com/OnlpLab/NEMO-Corpus) and [BMC](https://www.cs.bgu.ac.il/~elhadad/nlpproj/naama/)), [Presidio](https://microsoft.github.io/presidio/), Wikipedia and public lexicons.
 
-# Contents
+📝 Demo website is available [here](https://hebsafeharbor-demo.azurewebsites.net/)
+
+## Contents
  - [Installation](#installation) 
  - [Getting started](#getting-started) 
  - [Docker Compose](#docker-compose)

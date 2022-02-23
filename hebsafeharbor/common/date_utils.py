@@ -1,6 +1,14 @@
 import re
-from typing import List
-from hebsafeharbor.common.date_regex import HEB_DATE_REGEX, LATIN_DATE_REGEX
+from typing import List,Tuple,Optional,Union
+from hebsafeharbor.common.date_regex import (HEB_FULL_DATE_REGEX,
+                                             HEB_MONTH_YEAR_REGEX,
+                                             HEB_DAY_MONTH_REGEX,
+                                             LATIN_DATE_REGEX,
+                                             EN_DMY_REGEX,
+                                             EN_MDY_REGEX,
+                                             EN_YMD_REGEX,
+                                             EN_DATE_REGEX)
+
 MIN_DATE_LENGTH = 6
 
 class DateMentionComponent:
@@ -60,29 +68,31 @@ class DateMention:
         return masked_text
  
 
-def set_date_mention_component(matched:re.Match,ind:int) -> DateMentionComponent:
+def set_date_mention_component(matched:re.Match,ind:Union[int,str]) -> Optional[DateMentionComponent]:
     '''
     Extracts the date and its span from a regular expression and sets a DateMentionComponent 
     instance accordingly.
     :param matched: a re.Match instance containing the groups of a regular expression
-    :param ind: the index of the group we would like to retrieve
+    :param ind: the index (or group name) of the group we would like to retrieve. if ind<1 (or group name not in the matched groups), return None
     :return: a DateMentionComponent instance
     '''
-    return DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1])
+    if type(ind) == int:
+        date_instance = DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind>0 else None
+        
+    else:
+        date_instance = DateMentionComponent(matched.group(ind),matched.span(ind)[0],matched.span(ind)[1]) if ind in matched.groupdict() else None
+        
+    return date_instance
 
-def set_date_mention(matched:re.Match,group_order:List[int]) -> DateMention:
+def set_date_mention_from_pattern_group_names(matched:re.Match) -> DateMention:
     '''
-    Extracts the date and its span from a regular expression and sets a DateMention
+    Extracts the date and its span from a regular expression by group names and sets a DateMention
     instance accordingly.
     :param matched: a re.Match instance containing the groups of a regular expression
-    :param group_order: the order of the group indexes to extract from the matched regular expression
     :return: a list of DateMentionComponent instances
     '''
-    day,month,year = [set_date_mention_component(matched,ind) for ind in group_order]
+    day,month,year = [set_date_mention_component(matched,ind) for ind in ['day','month','year'] ]
     return DateMention(day=day,month=month, year=year,text=matched.string)
-
-
-
 
 def extract_date_components(text: str) -> DateMention:
     """
@@ -98,18 +108,42 @@ def extract_date_components(text: str) -> DateMention:
     if len(text) < MIN_DATE_LENGTH:
         return DateMention()
 
-    #Hebrew dates
-    heb_pattern = HEB_DATE_REGEX
-    matched = re.search(heb_pattern,text)
+    # check if it's a numerical date (dd.mm.yyyy, mm-dd-yy etc.)
+    num_date = extract_numerical_date_components(text)
+    if num_date:
+        return num_date
+
+    # Go over the different date patterns and search for a match
+    pattern_list = [HEB_FULL_DATE_REGEX,HEB_MONTH_YEAR_REGEX,HEB_DAY_MONTH_REGEX,
+                    LATIN_DATE_REGEX,
+                    EN_DMY_REGEX,EN_MDY_REGEX,EN_YMD_REGEX,
+                    EN_DATE_REGEX]
+
+    matched = find_pattern(text,pattern_list)
     if matched:
-        return set_date_mention(matched,group_order=[1,2,3])
-        
-    #Latin dates
-    latin_pattern = LATIN_DATE_REGEX
-    matched = re.search(latin_pattern,text)
-    if matched:
-        return set_date_mention(matched,group_order=[1,2,3]) 
-   
+        return set_date_mention_from_pattern_group_names(matched)
+    
+    return DateMention()
+
+def find_pattern(text:str,patterns:List[str])-> Optional[re.Match]:
+    '''Receives text and a list of patterns and returns the matching pattern. 
+    If none of the patterns match, return None
+    :param text: the original text
+    :param patterns: a list of patterns
+    :return a matching pattern or None if none of the patterns matched the given text
+    '''
+    for pattern in patterns:
+        matched = re.search(pattern,text,re.IGNORECASE)
+        if matched:
+            return matched
+    return None
+
+def extract_numerical_date_components(text:str) -> Optional[DateMention]:
+    '''
+        Checks if the given text matches a numerical date pattern (dd.mm.yy, mm-dd-yyyy etc.) 
+       :param text: the original text
+       :return if a pattern was found, returns DateMention, otherwise returns None
+    '''
     # Numerical dates
     num_pattern = r"(\d+)(?:[/.-])(\d+)(?:(?:[/.-])(\d+))?"
     matched = re.search(num_pattern,text)
@@ -125,7 +159,7 @@ def extract_date_components(text: str) -> DateMention:
             return DateMention(day=day,month=month,text=text)        
         else:
             if int(matched.group(1))>31:        
-                year = set_date_mention(matched,ind=1)
+                year = set_date_mention_component(matched,ind=1)
                 if int(matched.group(2))>12:
                     month = set_date_mention_component(matched,ind=3)
                     day = set_date_mention_component(matched,ind=2)
@@ -141,4 +175,5 @@ def extract_date_components(text: str) -> DateMention:
                     month = set_date_mention_component(matched,ind=2)
                     day = set_date_mention_component(matched,ind=1)
             return DateMention(day=day,month=month, year=year,text=text)
-    return DateMention()
+        return None
+    
