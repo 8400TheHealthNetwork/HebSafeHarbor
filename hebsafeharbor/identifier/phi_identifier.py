@@ -137,13 +137,13 @@ class PhiIdentifier:
                                                   disambiguated_cities_set,
                                                   allowed_prepositions=LOCATION_PREPOSITIONS))
 
-        ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousIsraeliCityRecognizer", "CITY",
-                                                         ambiguous_cities_set,
-                                                         allowed_prepositions=LOCATION_PREPOSITIONS,
-                                                         endorsing_entities=['LOC', 'GPE'],
-                                                         context=AMBIGOUS_CITIES_CONTEXT,
-                                                         ),
-                           )
+        # ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousIsraeliCityRecognizer", "CITY",
+        #                                                  ambiguous_cities_set,
+        #                                                  allowed_prepositions=LOCATION_PREPOSITIONS,
+        #                                                  endorsing_entities=['LOC', 'GPE'],
+        #                                                  context=AMBIGOUS_CITIES_CONTEXT,
+        #                                                  ),
+        #                    )
         # init disease recognizer
         ner_signals.append(
             LexiconBasedRecognizer("DiseaseRecognizer", "DISEASE", DISEASES, allowed_prepositions=DISEASE_PREPOSITIONS))
