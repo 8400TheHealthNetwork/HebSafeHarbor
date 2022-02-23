@@ -14,7 +14,6 @@ class HebSafeHarbor:
         """
         Initializes HebSafeHarbor
         """
-        print("starting identifier")
         self.identifier = PhiIdentifier()
         self.anonymizer = PhiAnonymizer()
 

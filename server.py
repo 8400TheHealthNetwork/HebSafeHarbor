@@ -145,6 +145,4 @@ def ready(response: Response):
 hsh_service.load_async()
 
 if __name__ == '__main__':
-    print("hi")
-    uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
-    print("bye")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

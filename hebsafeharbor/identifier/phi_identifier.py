@@ -70,7 +70,6 @@ class PhiIdentifier:
         """
 
         # create NLP engine based on the nlp configuration
-        print("load spacy")
         nlp_engine = HebSpacyNlpEngine(models={"he": "he_ner_news_trf"})
 
         # initialize the signals
