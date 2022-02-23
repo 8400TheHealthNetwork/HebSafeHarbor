@@ -2,7 +2,7 @@ from typing import List
 
 from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, \
     ABBREVIATIONS_LIST, AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST, \
-    AMBIGOUS_CITIES_CONTEXT
+    AMBIGUOUS_CITIES_CONTEXT
 from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
 from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS, \
@@ -144,7 +144,7 @@ class PhiIdentifier:
         #                                                  ambiguous_cities_set,
         #                                                  allowed_prepositions=LOCATION_PREPOSITIONS,
         #                                                  endorsing_entities=['LOC', 'GPE'],
-        #                                                  context=AMBIGOUS_CITIES_CONTEXT,
+        #                                                  context=AMBIGUOUS_CITIES_CONTEXT,
         #                                                  ),
         #                    )
         
