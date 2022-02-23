@@ -67,7 +67,7 @@ print(output)
 ```
 
 ## Docker Compose
-The easiest way to consume the service and the demo application is through `docker-compose` setup.
+The easiest way to consume HebSafeHarbor as a [service with a REST API](#server)  and [demo application](#demo-application) is through `docker-compose` setup.
 
 Run the `docker-compose` command against the `docker-compose.yml` file in the root directory to get the latest containers from Docker Hub
 ```sh
