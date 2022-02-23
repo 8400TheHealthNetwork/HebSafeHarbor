@@ -136,7 +136,7 @@ For experimentation and testing purposes, we provide a [Streamlit](https://strea
 ![](images/demo_application.png)
 Note that the demo application functions as a (semi-)web client in the sense that it queries the remote REST endpoint and visualizes the results.
 
-In order for the demo to work and interact with the server application, you will need to set `HSH_SERVER` environment variable to the REST point URL. 
+In order for the demo to work and interact with the server application, you will need to set [`HSH_SERVER`](#what-is-the-server-docker-container-ip-address) environment variable to the REST point URL. 
 
 For example, assuming you are running the server as docker container:
 ```
