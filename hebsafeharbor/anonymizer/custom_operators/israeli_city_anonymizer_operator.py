@@ -2,7 +2,9 @@ from typing import Dict
 
 from presidio_anonymizer.operators import OperatorType, Operator
 
-from hebsafeharbor.common.city_utils import ABOVE_THRESHOLD_CITIES_LIST, BELOW_THRESHOLD_CITIES_LIST
+from hebsafeharbor.common.city_utils import ABOVE_THRESHOLD_CITIES_LIST, BELOW_THRESHOLD_CITIES_LIST, \
+    ABBREVIATIONS_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST
+
 
 class IsraeliCityAnonymizerOperator(Operator):
     """
@@ -20,6 +22,10 @@ class IsraeliCityAnonymizerOperator(Operator):
         """
 
         if text in ABOVE_THRESHOLD_CITIES_LIST:
+            return text
+        elif text in AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST:
+            return text
+        elif text in ABBREVIATIONS_LIST:
             return text
         elif text in BELOW_THRESHOLD_CITIES_LIST:
             return "<מיקום_>"
