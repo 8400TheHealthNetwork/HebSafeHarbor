@@ -1,7 +1,7 @@
 from typing import Optional
 
 from presidio_analyzer import PatternRecognizer, Pattern
-from hebsafeharbor.common.date_regex import HEB_DATE_REGEX
+from hebsafeharbor.common.date_regex import HEB_FULL_DATE_REGEX,HEB_MONTH_YEAR_REGEX,HEB_DAY_MONTH_REGEX
 
 class HebDateRecognizer(PatternRecognizer):
     """
@@ -10,7 +10,17 @@ class HebDateRecognizer(PatternRecognizer):
     PATTERNS = [
         Pattern(
             "Hebrew full date",  
-            HEB_DATE_REGEX,
+            HEB_FULL_DATE_REGEX,
+            0.6
+        ),  
+        Pattern(
+            "Hebrew month year",  
+            HEB_MONTH_YEAR_REGEX,
+            0.6
+        ),      
+        Pattern(
+            "Hebrew day month",  
+            HEB_DAY_MONTH_REGEX,
             0.6
         ),        
         
