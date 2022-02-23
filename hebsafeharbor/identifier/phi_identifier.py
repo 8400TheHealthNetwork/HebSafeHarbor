@@ -17,7 +17,7 @@ from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinD
 from hebsafeharbor.identifier.signals.israeli_id_recognizer import IsraeliIdNumberRecognizer
 from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
-    IpRecognizer, PhoneRecognizer, SpacyRecognizer
+    IpRecognizer, PhoneRecognizer, SpacyRecognizer, UrlRecognizer
 
 from hebsafeharbor.identifier.signals.lexicon_based_recognizer import LexiconBasedRecognizer
 from hebsafeharbor.lexicons.disease import DISEASES
@@ -109,6 +109,7 @@ class PhiIdentifier:
             EmailRecognizer(supported_language="he", context=["אימייל", "דואל", "email", "דואר אלקטרוני"]))
         ner_signals.append(IpRecognizer(supported_language="he", context=["IP", "כתובת IP", "כתובת איי פי"]))
         ner_signals.append(PhoneRecognizer(supported_language="he", context=["טלפון", "סלולרי", "פקס"]))
+        ner_signals.append(UrlRecognizer(supported_language="he", context=["אתר אינטרנט"]))
 
         hebspacy_recognizer = self.init_hebspacy_recognizer()
 
