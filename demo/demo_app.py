@@ -8,7 +8,7 @@ st.set_page_config(layout="wide", page_title="Hebrew Safe Harbor", initial_sideb
 from visualizer import visualize_response
 
 DEFAULT_TEXT = "גדעון לבנה הגיע היום לבית החולים שערי צדק עם תלונות על כאבים בחזה"
-URL = os.getenv("SERVER_URL", "https://localhost:8080")
+URL = os.getenv("HSH_SERVER", "http://localhost:8000")
 
 def run():
     st.title("Hebrew Safe Harbor demo application")
@@ -28,6 +28,7 @@ def run():
         submitted = st.form_submit_button("Analyze")
 
         if submitted:
+            print(URL)
             if text is not None and len(text) > 0:
                 response = requests.post(f"{URL}/query", json=req_data)
                 content = json.loads(response.content)
@@ -40,7 +41,7 @@ def run():
                 if len(docs) == 1:
                     doc = docs[0]
                     visualize_response(text, doc)
-                else: # TODO handle server connectivity issues better...
+                else:
                     if response.status_code == 20:  # response consists of more than one doc
                         st.error("Expected a single text to process and visualize, but received more than one")
                     else:

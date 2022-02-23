@@ -10,21 +10,22 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  demo:
-    build: demo
-    container_name: "demo"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.demo.rule=Host(`demo.localhost`)"
-    environment:
-      - SERVER_URL=server
-    depends_on:
-      - server
-
   server:
     build: .
+    container_name: "hsh_server"
+    ports:
+      - "8000:8000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=Host(`server.localhost`)"
 
-
+  demo:
+    build: demo
+    container_name: "hsh_demo"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.demo.rule=Host(`demo.localhost`)"
+    environment:
+      - HSH_SERVER=http://server:8000
+    depends_on:
+      - server
