@@ -106,6 +106,7 @@ docker run --name hsh_server -d -p 8000:8000 hebsafeharbor_server
 ```
 Navigate to http://localhost:8000 to validate the service is up and running. Similarly, you can go to http://localhost:8000/docs and http://localhost:8000/query.
 
+Note that this container consume lots of memory, if the container exits with code 137 increase Docker memory allocation to 6gb (https://forums.docker.com/t/how-to-increase-memory-size-that-is-available-for-a-docker-container/78483).
 ## Demo application
 For experimentation and testing purposes, we provide a [Streamlit](https://streamlit.io/) demo application.
 ![](images/demo_application.png)
