@@ -8,6 +8,13 @@ HebSafeHarbor was developed according to the requirements described in הצעה 
 
 The toolkit integrates and uses open source libraries and assets, including [HebSpacy](https://github.com/8400TheHealthNetwork/HebSpacy), [Presidio](https://microsoft.github.io/presidio/), Wikipedia and public lexicons.
 
+# Contents
+ - [Installation](#installation) 
+ - [Getting started](#getting-started) 
+ - [Docker Compose](#docker-compose)
+ - [Server](#server)
+ - [Demo Application](#demo-application)
+ - [FAQ](#faq)
 
 
 ## Installation
@@ -59,6 +66,24 @@ output = hsh([doc])
 print(output)
 ```
 
+## Docker Compose
+The easiest way to consume HebSafeHarbor as a [service with a REST API](#server)  and [demo application](#demo-application) is through `docker-compose` setup.
+
+Run the `docker-compose` command against the `docker-compose.yml` file in the root directory to get the latest containers from Docker Hub
+```sh
+docker-compose up -d --build
+```
+Navigate in the browser to <http://server.localhost/docs> to access the service swagger.
+Navigate in the browser to <http://demo.localhost> to test the demo application.
+
+
+#### Development mode
+To run the containers against the repo's code, run the following command:
+```sh
+docker-compose -f docker-compose-development.yml up -d --build
+```
+
+
 ## Server
 ### Local REST endpoint
 HebSafeHarbor can be consumed as a REST endpoint for the service powered by the [FastAPI](https://fastapi.tiangolo.com/) library.
@@ -106,12 +131,12 @@ docker run --name hsh_server -d -p 8000:8000 hebsafeharbor_server
 ```
 Navigate to http://localhost:8000 to validate the service is up and running. Similarly, you can go to http://localhost:8000/docs and http://localhost:8000/query.
 
-## Demo application
+## Demo Application
 For experimentation and testing purposes, we provide a [Streamlit](https://streamlit.io/) demo application.
 ![](images/demo_application.png)
 Note that the demo application functions as a (semi-)web client in the sense that it queries the remote REST endpoint and visualizes the results.
 
-In order for the demo to work and interact with the server application, you will need to set `HSH_SERVER` environment variable to the REST point URL. 
+In order for the demo to work and interact with the server application, you will need to set [`HSH_SERVER`](#what-is-the-server-docker-container-ip-address) environment variable to the REST point URL. 
 
 For example, assuming you are running the server as docker container:
 ```
@@ -121,36 +146,6 @@ $env:HSH_SERVER="http://localhost:8000"
 [For Linux]
 export HSH_SERVER=http://localhost:8000
 ```
-
-#### Find out what is the server (Docker container) IP address 
-Run the `network inspect bridge` command to get networking information regarding running dockers
-
-```sh
-docker network inspect bridge
-```
-Your response should look like the following:
-```sh
-[
-    {
-        "Name": "bridge",
-        ...
-        "Containers": {
-            "9611cad28701cfe0877c2bfed9ad2710202492de6d574d42a6714f439cf4f2d2": {
-                "Name": "hsh_server",
-                ...
-                "IPv4Address": "172.17.0.2/16",
-                ...
-            }
-        },
-      ...
-    }
-]
-```
-The IP address is under `IPv4Address` associated with `"Name": "hsh_server"` container under `Containers`. 
-In our case, **HSH_SERVER = 172.17.0.2**
-
-
-Read more [here](https://docs.docker.com/network/network-tutorial-standalone/)
 
 ### Run locally
 To run the demo locally, first install the requirements as follows:
@@ -188,22 +183,42 @@ docker run -d -e "HSH_SERVER=<SERVICE URL>" -p 8501:8501 hebsafeharbor_demo
 
 Navigate to http://localhost:8501 to access the demo application.
 
-## Docker Compose
-You may also consume the service and the demo application through `docker-compose` setup.
+## FAQ
 
-Run the `docker-compose` command against the `docker-compose.yml` file in the root directory to get the latest containers from Docker Hub
+#### Why does the server contatiner exits with 137 error code?
+Note that the server container includes a trsnssformer model that consume more than 2gb of memory, increase Docker memory allocation to 6gb 
+
+Read more [here](https://forums.docker.com/t/how-to-increase-memory-size-that-is-available-for-a-docker-container/78483).
+
+#### What is the server (Docker container) IP address?
+Run the `network inspect bridge` command to get networking information regarding running dockers
+
 ```sh
-docker-compose up -d --build
+docker network inspect bridge
 ```
-Navigate in the browser to <http://server.localhost/docs> to access the service swagger.
-Navigate in the browser to <http://demo.localhost> to test the demo application.
-
-
-#### Development mode
-To run the containers against the repo's code, run the following command:
+Your response should look like the following:
 ```sh
-docker-compose -f docker-compose-development.yml up -d --build
+[
+    {
+        "Name": "bridge",
+        ...
+        "Containers": {
+            "9611cad28701cfe0877c2bfed9ad2710202492de6d574d42a6714f439cf4f2d2": {
+                "Name": "hsh_server",
+                ...
+                "IPv4Address": "172.17.0.2/16",
+                ...
+            }
+        },
+      ...
+    }
+]
 ```
+The IP address is under `IPv4Address` associated with `"Name": "hsh_server"` container under `Containers`. 
+In our case, **HSH_SERVER = 172.17.0.2**
+
+
+Read more [here](https://docs.docker.com/network/network-tutorial-standalone/)
 
 -----
 
