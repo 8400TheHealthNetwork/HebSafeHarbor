@@ -1,6 +1,7 @@
 from typing import List
 
-from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, ABBREVIATIONS_LIST
+from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, \
+    ABBREVIATIONS_LIST, AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST
 from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
 from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS
@@ -13,6 +14,7 @@ from hebsafeharbor.identifier.signals.general_id_recognizer import GeneralIdReco
 from hebsafeharbor.identifier.signals.heb_date_recognizer import HebDateRecognizer
 from hebsafeharbor.identifier.signals.heb_preposition_date_recognizer import PrepositionDateRecognizer
 from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinDateRecognizer
+from hebsafeharbor.identifier.signals.hebrew_city_recognizer import AmbiguousHebrewCityRecognizer
 from hebsafeharbor.identifier.signals.israeli_id_recognizer import IsraeliIdNumberRecognizer
 from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
@@ -121,13 +123,41 @@ class PhiIdentifier:
         # init latin dates
         ner_signals.append(HebLatinDateRecognizer())
         # init Hebrew country recognizer
-        # ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
-        #                                           allowed_prepositions=LOCATION_PREPOSITIONS))
-        # init Hebrew city recognizer
-        # ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
-        #                                           set(BELOW_THRESHOLD_CITIES_LIST).union(
-        #                                               set(ABOVE_THRESHOLD_CITIES_LIST)).union(set(ABBREVIATIONS_LIST)),
-        #                                           allowed_prepositions=LOCATION_PREPOSITIONS))
+        ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
+                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
+        # init Hebrew city recognizers
+        cities_set = set(BELOW_THRESHOLD_CITIES_LIST).union(
+            set(ABOVE_THRESHOLD_CITIES_LIST)).union(set(ABBREVIATIONS_LIST))
+        ambiguous_cities_set = set(
+            AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST).union(
+            set(AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST))
+        disambiguated_cities_set = cities_set - ambiguous_cities_set
+        ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
+                                                  disambiguated_cities_set,
+                                                  allowed_prepositions=LOCATION_PREPOSITIONS))
+
+        ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousIsraeliCityRecognizer", "CITY",
+                                                         ambiguous_cities_set,
+                                                         allowed_prepositions=LOCATION_PREPOSITIONS,
+                                                         endorsing_entities=['LOC', 'GPE'],
+                                                         context=["תושב", "תושבת",
+                                                                  "מבקר", "ביקר", "מבקרת","ביקרה", "ביקרו", "לבקר",
+                                                                  "גר", "גרה", "גרו","לגור",
+                                                                  "מגיע", "מגיעה", "הגיע" "להגיע",
+                                                                  "הייה", "הייתה",
+                                                                  "נכנס", "נכנסה",
+                                                                  "זז", "זזה", "זזו", "לזוז",
+                                                                  "חוזר", "חזר", "חוזרת","חזרה","חזרו",
+                                                                  "טס", "טסה", "טסו", "טס",
+                                                                  "נוסע", "נסע", "נוסעת","נסעתה", "לנסוע",
+                                                                  "עובר", "עבר", "עוברת","עברה", "עברו", "לעבור",
+                                                                  "עוזב", "עזב", "עוזבת","עזבה", "עזבו", "לעזוב",
+                                                                  "עוצר", "עצר", "עוצרת","עצרה", "עוצרו", "לעצור",
+                                                                  "פוגש", "פגש", "פוגשת","פגשה", "פגשו", "לפגוש",
+                                                                  "עולה", "עלה","עלתה", "עלו", "לעלות",
+                                                                  ],
+                                                         ),
+                           )
         # init disease recognizer
         ner_signals.append(
             LexiconBasedRecognizer("DiseaseRecognizer", "DISEASE", DISEASES, allowed_prepositions=DISEASE_PREPOSITIONS))
