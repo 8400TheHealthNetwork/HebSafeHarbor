@@ -8,6 +8,7 @@ from hebsafeharbor.common.terms_recognizer import TermsRecognizer
 from hebsafeharbor.identifier.consolidation.consolidation_config import CATEGORY_TO_CONTEXT_PHRASES, \
     ENTITY_TYPE_TO_CATEGORY
 from hebsafeharbor.identifier.consolidation.post_consolidation.post_consolidator_rule import PostConsolidatorRule
+from hebsafeharbor.lexicons.healthcare_professional import HEALTHCARE_PROFESSIONAL
 
 
 class MedicalPostConsolidator(PostConsolidatorRule):
@@ -159,8 +160,7 @@ class MedicalPostConsolidator(PostConsolidatorRule):
         :param consolidated_entities: recognized entities
         :return: updated list of consolidated entities
         """
-        healthcare_professional = ["ד\"ר", "דר", "דוקטור", "פרופסור", "פרופ\'", "פרופ", "רופא"]
-        healthcare_professional_rec = TermsRecognizer(healthcare_professional)
+        healthcare_professional_rec = TermsRecognizer(HEALTHCARE_PROFESSIONAL)
         offsets = healthcare_professional_rec(doc.text, list(self.medical_prepositions))
         end_offsets = list(map(lambda offset: offset[0] + offset[1] - 1, offsets))
         res = []

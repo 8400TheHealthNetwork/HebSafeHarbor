@@ -184,19 +184,20 @@ class NerConsolidator:
             else:
                 entity_text = doc.text[entity.start:entity.end]
                 split_by_period = entity_text.split(".")
+
                 # if there aren't two parts it doesn't float number
                 if len(split_by_period) != 2:
                     result_entities.append(entity)
-                else:
-                    # both parts should be numeric otherwise it is not a float number
-                    if not split_by_period[0].isnumeric() or not split_by_period[1].isnumeric():
-                        result_entities.append(entity)
-                    else:
-                        # leading zero is allowed in float number only if the first part is zero
-                        if len(split_by_period[0]) == 1:
-                            result_entities.append(entity)
-                        elif len(split_by_period[0]) > 1 and split_by_period[0][0] == "0":
-                            result_entities.append(entity)
+
+                # both parts should be numeric otherwise it is not a float number
+                elif not split_by_period[0].isnumeric() or not split_by_period[1].isnumeric():
+                    result_entities.append(entity)
+
+                # leading zero is allowed in float number only if the first part is zero
+                elif len(split_by_period[0]) == 1:
+                    result_entities.append(entity)
+                elif len(split_by_period[0]) > 1 and split_by_period[0][0] == "0":
+                    result_entities.append(entity)
 
         filtered_entities = sorted(result_entities, key=lambda entity: (entity.start, entity.end))
         return filtered_entities
