@@ -54,7 +54,8 @@ class LexiconBasedRecognizer(EntityRecognizer):
                 start=start_offset,
                 end=start_offset + length,
                 score=self.DEFAULT_CONFIDENCE_LEVEL,
-                analysis_explanation=AnalysisExplanation(self.name, self.DEFAULT_CONFIDENCE_LEVEL)
+                analysis_explanation=AnalysisExplanation(self.name, self.DEFAULT_CONFIDENCE_LEVEL),
+                recognition_metadata={RecognizerResult.RECOGNIZER_NAME_KEY: self.name}
             )
             results.append(result)
 

@@ -40,8 +40,12 @@ install_requires_ = get_requirements_from_files('requirements.txt')
 for requirement in install_requires_:
     print("adding requirement: " + requirement)
 
-with open(path.join(this_directory, "README.MD"), encoding="utf-8") as f:
-    long_description = f.read()
+try:
+    with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+        long_description = f.read()
+except FileNotFoundError:
+    long_description = ""
+    print("Could not find README.md - Skipping")
 
 setup(
     name="hebsafeharbor",

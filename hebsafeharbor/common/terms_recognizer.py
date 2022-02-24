@@ -28,8 +28,11 @@ class TermsRecognizer:
                 pass
             else:
                 if prefixes:
-                    start_cond = offset == 0 or re.match(r"\W", text[offset - 1]) or \
-                                 re.match("|".join(prefixes), text[offset - 1])
+                    prefixes_pattern_raw = "|".join(prefixes)
+                    prefixes_pattern = r"\W(" + prefixes_pattern_raw + ")"
+                    start_cond = offset == 0 or re.match(r"\W", text[offset - 1]) or re.match(prefixes_pattern, text[
+                                                                                                                offset - 2:offset]) or (
+                                             offset == 1 and re.match(prefixes_pattern_raw, text[offset - 1]))
                 else:
                     start_cond = offset == 0 or re.match(r"\W", text[offset - 1])
                 is_phrase = start_cond \

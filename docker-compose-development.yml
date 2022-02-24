@@ -11,7 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   server:
-    image: hebsafeharbor/hebsafeharbor:latest
+    build: .
     container_name: "hsh_server"
     ports:
       - "8000:8000"
@@ -20,7 +20,7 @@ services:
       - "traefik.http.routers.server.rule=Host(`server.localhost`)"
 
   demo:
-    image: hebsafeharbor/demo_application:latest
+    build: demo
     container_name: "hsh_demo"
     labels:
       - "traefik.enable=true"

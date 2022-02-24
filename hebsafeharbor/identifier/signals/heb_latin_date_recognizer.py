@@ -1,7 +1,7 @@
 from typing import Optional
 
 from presidio_analyzer import PatternRecognizer, Pattern
-from hebsafeharbor.common.date_regex import LATIN_DATE_REGEX
+from hebsafeharbor.common.date_regex import LATIN_DATE_REGEX,EN_DATE_REGEX
 
 
 
@@ -13,10 +13,15 @@ class HebLatinDateRecognizer(PatternRecognizer):
     
     PATTERNS = [
         Pattern(
-            "day month year",
+            "dates written in Hebrew",
             LATIN_DATE_REGEX,
             0.6
-        ),                
+        ), 
+        Pattern(
+          "dates written in English",
+          EN_DATE_REGEX,
+          0.6
+        ),               
     ]
 
     SUPPORTED_ENTITY = "DATE"
