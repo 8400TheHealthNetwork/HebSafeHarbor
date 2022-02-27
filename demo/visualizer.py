@@ -14,8 +14,13 @@ def show_entities(text: str, items: pd.DataFrame):
 
 
 def visualize_response(source_text: str, response: Dict):
-    items_df = pd.DataFrame.from_records(response.get("items"))
+    resopnse_items = response.get("items", [])
+    if not resopnse_items:
+        return
+    items_df = pd.DataFrame.from_records(resopnse_items)
 
+
+    print(items_df)
     identification_df = items_df[["textStartPosition", "textEndPosition", "textEntityType"]]
     identification_df.columns = ["startPosition", "endPosition", "entityType"]
     show_entities(source_text, identification_df)
