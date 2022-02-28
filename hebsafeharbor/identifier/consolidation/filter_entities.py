@@ -11,6 +11,7 @@ from hebsafeharbor.identifier.consolidation.consolidation_config import ENTITY_T
 class FilterEntities:
     ENGLISH_LETTER_REGEX = re.compile(r"[a-z]|[A-z]")
     ALPHA_NUMERIC_REGEX = re.compile(r"[a-z]|[A-z]|[א-ת]|\d")
+    ITEMIZED_REGEX = re.compile(r"[א-ת](\.|'|-)")
 
     @staticmethod
     def __call__(recognized_entities: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
@@ -20,7 +21,7 @@ class FilterEntities:
         1. remove entities from irrelevant types
         2. filter out ORG and NAME entities that contains at least one English letter
         3. filter out only symbols entities
-        4. filter out "מ." entities that followed by "ז"
+        4. filter out Hebrew itemized
         5. filter out DATE entities that are float number
 
         :param recognized_entities: list of recognized entities
@@ -33,7 +34,6 @@ class FilterEntities:
             recognized_entities))
 
         # filter out ORG and NAME entities that contains at least one English letter
-
         filtered_entities = list(
             filter(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type] not in ["ORG", "NAME"]
                                   or FilterEntities.ENGLISH_LETTER_REGEX.search(
@@ -46,10 +46,10 @@ class FilterEntities:
             lambda entity: FilterEntities.ALPHA_NUMERIC_REGEX.search(doc.text[entity.start:entity.end]) is not None,
             filtered_entities))
 
-        # filter out "מ." entities that followed by "ז" as it is part of the abbreviated from of ID
+        # filter out Hebrew itemized entities (length of 2 + match ITEMIZED_REGEX)
         filtered_entities = list(filter(lambda entity: not (
-                doc.text[entity.start:entity.end] == "מ." and entity.end < len(doc.text) and doc.text[
-            entity.end] == "ז"), filtered_entities))
+                    entity.end - entity.start == 2 and FilterEntities.ITEMIZED_REGEX.search(
+                doc.text[entity.start:entity.end]) is not None), filtered_entities))
 
         # filter out DATE entities that are float number
         result_entities = []
