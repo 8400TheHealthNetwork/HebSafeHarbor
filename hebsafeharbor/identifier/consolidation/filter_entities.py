@@ -51,28 +51,52 @@ class FilterEntities:
                     entity.end - entity.start == 2 and FilterEntities.ITEMIZED_REGEX.search(
                 doc.text[entity.start:entity.end]) is not None), filtered_entities))
 
-        # filter out DATE entities that are float number
+        # filter out DATE entities that are:
+        # float number
+        # missing a component (mm/yy, dd/mm etc.)
+        # days of the week
+        # seasons
         result_entities = []
         for entity in filtered_entities:
             if ENTITY_TYPE_TO_CATEGORY[entity.entity_type] != "DATE":
                 result_entities.append(entity)
             else:
                 entity_text = doc.text[entity.start:entity.end]
-                split_by_period = entity_text.split(".")
+                if is_float(entity_text) or is_short_date(entity_text) or is_day_of_week(entity_text) or is_season(entity_text):
+                    continue
+                result_entities.append(entity)
 
-                # if there aren't two parts it doesn't float number
-                if len(split_by_period) != 2:
-                    result_entities.append(entity)
-
-                # both parts should be numeric otherwise it is not a float number
-                elif not split_by_period[0].isnumeric() or not split_by_period[1].isnumeric():
-                    result_entities.append(entity)
-
-                # leading zero is allowed in float number only if the first part is zero
-                elif len(split_by_period[0]) == 1:
-                    result_entities.append(entity)
-                elif len(split_by_period[0]) > 1 and split_by_period[0][0] == "0":
-                    result_entities.append(entity)
-
+                
         filtered_entities = sorted(result_entities, key=lambda entity: (entity.start, entity.end))
         return filtered_entities
+
+def is_float(txt:str)->bool:
+    if len(txt.split('.'))!=2:
+        return False
+
+    try: 
+        float(txt)
+        return True
+    except:
+        return False
+
+def is_short_date(txt:str)->bool:
+    if len(re.split(r"[./-]",txt))==2:
+        return True
+    return False
+
+def is_day_of_week(txt:str) -> bool:
+    dow_list = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+    heb_dow_list = ["שבת","שישי","חמישי","רביעי","שלישי","שני","ראשון"]
+    if (txt.lower() in dow_list) or (re.search(rf"(?:[ב,ה,ל,מה])?{'|'.join(heb_dow_list)}",txt.lower())):
+        return True
+    return False
+
+def is_season(txt:str) -> bool:
+    season_list = ["summer","fall","winter","spring"]
+    heb_season_list = ["אביב","סתיו","חורף","קיץ"]
+    if (txt.lower() in season_list) or (re.match(rf"([ב,ה,ל,מה])?({'|'.join(heb_season_list)})",txt.lower())):
+        return True
+    return False
+
+

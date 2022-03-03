@@ -13,7 +13,7 @@ class PrepositionDateRecognizer(DateRecognizer):
         patterns: Optional[List[Pattern]] = None,
         context: Optional[List[str]] = None,
         supported_language: str = "he",
-        supported_entity: str = "DATE",
+        supported_entity: str = "PREPOSITION_DATE",
     ):
         # take the default patterns from the DateRecognizer class and augment them with a preposition
         patterns = self.PATTERNS
