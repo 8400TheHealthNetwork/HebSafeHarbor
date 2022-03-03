@@ -21,16 +21,7 @@ from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
 
-from hebsafeharbor.identifier.signals import (
-    SpacyRecognizerWithConfidence,
-    GeneralIdRecognizer,
-    HebDateRecognizer,
-    PrepositionDateRecognizer,
-    HebLatinDateRecognizer,
-    AmbiguousHebrewCityRecognizer,
-    IsraeliIdNumberRecognizer,
-    LexiconBasedRecognizer
-)
+from hebsafeharbor.identifier.signals import *
 
 from hebsafeharbor.lexicons.disease import DISEASES
 from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
