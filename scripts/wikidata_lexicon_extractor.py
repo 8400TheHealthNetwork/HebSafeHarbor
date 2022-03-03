@@ -65,11 +65,19 @@ def save_python_file(wiki_id: str, all_names: List[str], output_file: str, lexic
             fp.write(f'\t"{name}",\n')
         fp.write(']\n')
 
+def enrich_data(phrase_list: List[str]) -> List[str]:
+    extensions = []
+    for phrase in phrase_list:
+        if "-" in phrase:
+            extensions.append(phrase.replace("-", " "))
+    phrase_list += extensions
+    return phrase_list
 
 def main(wiki_id: str, output_file: str, lexicon_name: str):
     data = wikidata_query(wiki_id)
     all_names = process_wikidata_response(data)
-    save_python_file(wiki_id, all_names, output_file, lexicon_name)
+    enriched_names = enrich_data(all_names)
+    save_python_file(wiki_id, enriched_names, output_file, lexicon_name)
 
 
 if __name__ == "__main__":
