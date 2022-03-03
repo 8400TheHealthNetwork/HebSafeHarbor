@@ -11,6 +11,7 @@ from hebsafeharbor.identifier import HebSpacyNlpEngine
 from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
+from hebsafeharbor.identifier.signals import SpacyRecognizerWithConfidence
 from hebsafeharbor.identifier.signals.general_id_recognizer import GeneralIdRecognizer
 
 from hebsafeharbor.identifier.signals.heb_date_recognizer import HebDateRecognizer
@@ -171,7 +172,7 @@ class PhiIdentifier:
         hebspacy_label_groups = [
             ({ent}, {ent}) for ent in hebspacy_entities
         ]
-        hebspacy_recognizer = SpacyRecognizer(supported_language="he",
+        hebspacy_recognizer = SpacyRecognizerWithConfidence(supported_language="he",
                                               supported_entities=hebspacy_entities,
                                               ner_strength=1.0,
                                               check_label_groups=hebspacy_label_groups)
