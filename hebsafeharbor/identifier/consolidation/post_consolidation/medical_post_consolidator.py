@@ -69,8 +69,9 @@ class MedicalPostConsolidator(PostConsolidatorRule):
                 overlapping_medical_entities = MedicalPostConsolidator.get_entities_in_span(offset_to_medical_entity,
                                                                                             entity.start, entity.end)
                 if len(overlapping_medical_entities) == 0 or not any(
-                        self.is_full_overlap(entity, medical_entity, doc) for medical_entity in
-                        overlapping_medical_entities):
+                        self.is_medical_entity_contains_entity(entity, medical_entity) or
+                        self.is_full_overlap(entity, medical_entity, doc) for
+                        medical_entity in overlapping_medical_entities):
                     no_overlap_entities.append(entity)
             else:
                 no_overlap_entities.append(entity)
@@ -92,6 +93,16 @@ class MedicalPostConsolidator(PostConsolidatorRule):
             medical_entity.start - 1] in self.medical_prepositions:
             return True
         return False
+
+    def is_medical_entity_contains_entity(self, entity: RecognizerResult, medical_entity: RecognizerResult) -> bool:
+        """
+        Checks if the medical entity contains the given entity
+
+        :param entity: the entity to check whether the medical entity contains it
+        :param medical_entity: the medical entity to check whether it contains the given entity
+        :return: True if the medical entity contains the given entity and False otherwise
+        """
+        return entity.start >= medical_entity.start and entity.end <= medical_entity.end
 
     @staticmethod
     def map_offset_to_entity(entities: List[RecognizerResult]) -> Dict[int, RecognizerResult]:
