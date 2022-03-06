@@ -1,8 +1,17 @@
 from typing import List
 
-from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, \
-    ABBREVIATIONS_LIST, AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST, \
+from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
+from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
+    IpRecognizer, PhoneRecognizer, UrlRecognizer
+
+from hebsafeharbor.common.city_utils import (
+    BELOW_THRESHOLD_CITIES_LIST,
+    ABOVE_THRESHOLD_CITIES_LIST,
+    ABBREVIATIONS_LIST,
+    AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST,
+    AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST,
     AMBIGUOUS_CITIES_CONTEXT
+)
 from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
 from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS, \
@@ -12,8 +21,8 @@ from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
 from hebsafeharbor.identifier.context_enhancement.hebrew_context_aware_enhancer import HebrewContextAwareEnhancer
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
-from hebsafeharbor.identifier.signals.general_id_recognizer import GeneralIdRecognizer
 
+from hebsafeharbor.identifier.signals import *
 from hebsafeharbor.identifier.signals.heb_date_recognizer import HebDateRecognizer
 from hebsafeharbor.identifier.signals.heb_preposition_date_recognizer import PrepositionDateRecognizer
 from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinDateRecognizer
@@ -23,7 +32,6 @@ from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistr
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
     IpRecognizer, PhoneRecognizer, SpacyRecognizer, UrlRecognizer
 
-from hebsafeharbor.identifier.signals.lexicon_based_recognizer import LexiconBasedRecognizer
 from hebsafeharbor.lexicons.disease import DISEASES
 from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
 from hebsafeharbor.lexicons.medical_tests import MEDICAL_TESTS
@@ -183,7 +191,7 @@ class PhiIdentifier:
         hebspacy_label_groups = [
             ({ent}, {ent}) for ent in hebspacy_entities
         ]
-        hebspacy_recognizer = SpacyRecognizer(supported_language="he",
+        hebspacy_recognizer = SpacyRecognizerWithConfidence(supported_language="he",
                                               supported_entities=hebspacy_entities,
                                               ner_strength=1.0,
                                               check_label_groups=hebspacy_label_groups)
