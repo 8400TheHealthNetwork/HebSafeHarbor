@@ -73,11 +73,23 @@ class SameBoundaries(ConflictHandler):
         :param doc: Doc object
         :return: the selected entity to be kept
         """
+        
+        # If there are more than one recognizers, remove the results coming out of the Hebspacy recognizer
+        group_recognizers = set(map(lambda entity: entity.analysis_explanation.recognizer,entities ))
+
+        if (len(group_recognizers)>1) and ("SpacyRecognizer" in group_recognizers):
+            filtered_entities = []
+            for entity in entities:
+                if entity.analysis_explanation.recognizer != "SpacyRecognizer":
+                    filtered_entities.append(entity)
+            entities = filtered_entities
+
         group_categories = set(map(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type], entities))
 
         # currently if there are more than 2 categories we take the longest entity
         if len(group_categories) > 2:
             return self.prefer_longest_entity_resolver(entities, doc)
+
 
         if self.is_conflict_between(["ID", "CONTACT"], group_categories):
             return self.context_based_resolver(entities, doc)
@@ -98,6 +110,7 @@ class SameBoundaries(ConflictHandler):
                 else:
                     return date_entity
 
+        
         if self.is_conflict_between(["CONTACT", "DATE"], group_categories):
             if len(entities) > 2:
                 return self.category_majority_resolver(entities, doc)

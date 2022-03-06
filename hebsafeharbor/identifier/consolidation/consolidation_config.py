@@ -8,7 +8,7 @@ ENTITY_TYPE_TO_CATEGORY = {
     "PERS": "NAME",
     "LOC": "LOCATION",
     "ORG": "ORG",
-    "TIME": "DATE",
+    "TIME": "TIME",
     "DATE": "DATE",
     "PREPOSITION_DATE": "DATE",
     "HEBREW_DATE": "DATE",
