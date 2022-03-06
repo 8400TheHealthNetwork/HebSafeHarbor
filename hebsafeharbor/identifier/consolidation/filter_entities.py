@@ -6,6 +6,7 @@ from presidio_analyzer import RecognizerResult
 from hebsafeharbor import Doc
 from hebsafeharbor.identifier.consolidation.consolidation_config import ENTITY_TYPES_TO_IGNORE, \
     ENTITY_TYPES_TO_POSTPROCESS, ENTITY_TYPE_TO_CATEGORY
+from hebsafeharbor.common.date_utils import is_float, is_day_of_week, is_season, is_short_date
 
 
 class FilterEntities:
@@ -69,34 +70,4 @@ class FilterEntities:
                 
         filtered_entities = sorted(result_entities, key=lambda entity: (entity.start, entity.end))
         return filtered_entities
-
-def is_float(txt:str)->bool:
-    if len(txt.split('.'))!=2:
-        return False
-
-    try: 
-        float(txt)
-        return True
-    except:
-        return False
-
-def is_short_date(txt:str)->bool:
-    if len(re.split(r"[./-]",txt))==2:
-        return True
-    return False
-
-def is_day_of_week(txt:str) -> bool:
-    dow_list = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
-    heb_dow_list = ["שבת","שישי","חמישי","רביעי","שלישי","שני","ראשון"]
-    if (txt.lower() in dow_list) or (re.search(rf"(?:[ב,ה,ל,מה])?{'|'.join(heb_dow_list)}",txt.lower())):
-        return True
-    return False
-
-def is_season(txt:str) -> bool:
-    season_list = ["summer","fall","winter","spring"]
-    heb_season_list = ["אביב","סתיו","חורף","קיץ"]
-    if (txt.lower() in season_list) or (re.match(rf"([ב,ה,ל,מה])?({'|'.join(heb_season_list)})",txt.lower())):
-        return True
-    return False
-
 
