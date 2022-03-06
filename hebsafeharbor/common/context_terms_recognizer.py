@@ -8,15 +8,19 @@ class ContextTermsRecognizer(TermsRecognizer):
 
     def __init__(self, phrase_list: List[str]):
         """
-        Initializes TermsRecognizer
+        Initializes ContextTermsRecognizer
         :param phrase_list: list of terms to recognize
         """
         super().__init__(phrase_list=phrase_list)
 
     def __call__(self, text: str, word: str, prefixes: Optional[List[str]] = None) -> List[Tuple[int, int]]:
         """
-        This method searches for terms in text
+        This method searches for terms in text, and formats pattern regex according to the words found
+        The pattern is used to find constructions like "... action verb ... prefixed preposition + proper noun ...",
+        ex. "הגיע לשדרות"
         :param text: text
+        :param word: recognized word
+        :param prefixes: prefixed prepositions list
         :return: List of starting offsets of matches and their length
         """
         offsets = []

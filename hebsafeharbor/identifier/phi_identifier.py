@@ -90,6 +90,9 @@ class PhiIdentifier:
         for signal in signals:
             registry.add_recognizer(signal)
 
+        # initialize custom context aware enhancer, which will enhance specified recognizers according to custom logic
+        # (ex. strict match for context word, additional logic for preposition handling),
+        # and will use LemmaContextAwareEnhancer for all other classes
         context_aware_enhancer = HebrewContextAwareEnhancer(
             substring_processed_recognizers_list = CUSTOM_ENHANCEMENT_RECOGNIZER_LIST)
 

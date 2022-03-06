@@ -13,14 +13,16 @@ logger = logging.getLogger("presidio-analyzer")
 
 class HebrewContextAwareEnhancer(ContextAwareEnhancer):
     """
-    A class representing a lemma based context aware enhancer logic.
+    A class representing a custom context aware enhancer logic.
 
-    Context words might enhance confidence score of a recogized entity,
-    LemmaContextAwareEnhancer is an implementation of Lemma based context aware logic,
-    it compares spacy lemmas of each word in context of the matched entity to given
-    context and the recongizer context words,
+    Context words might enhance confidence score of a recognized entity,
+    HebrewContextAwareEnhancer is a customization context aware logic,
+    it enhances specified recognizers outcomes according to custom logic
+    (ex. strict match for context word, additional logic for preposition handling),
+    and duplicates LemmaContextAwareEnhancer for all other classes ,
     if matched it enhance the recognized entity confidence score by a given factor.
 
+    :param substring_processed_recognizers_list: Results of which recognizers should be enhanced using custom logic
     :param context_similarity_factor: How much to enhance confidence of match entity
     :param min_score_with_context_similarity: Minimum confidence score
     :param context_prefix_count: how many words before the entity to match context
@@ -32,7 +34,7 @@ class HebrewContextAwareEnhancer(ContextAwareEnhancer):
             substring_processed_recognizers_list: List[str] = None,
             context_similarity_factor: float = 0.35,
             min_score_with_context_similarity: float = 0.4,
-            context_prefix_count: int = 2,
+            context_prefix_count: int = 5,
             context_suffix_count: int = 0,
     ):
         super().__init__(
@@ -52,8 +54,7 @@ class HebrewContextAwareEnhancer(ContextAwareEnhancer):
             context: Optional[List[str]] = None,
     ) -> List[RecognizerResult]:
         """
-        Update results in case the lemmas of surrounding words or input context
-        words are identical to the context words.
+        Update results in case the surrounding words are identical to the context words.
 
         Using the surrounding words of the actual word matches, look
         for specific strings that if found contribute to the score

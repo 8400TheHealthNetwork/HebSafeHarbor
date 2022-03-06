@@ -91,7 +91,12 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
         return geo_entities_positions
 
     def enhance_using_other_entities(self, nlp_artifacts: NlpArtifacts, results: List[RecognizerResult]):
-        # iterate over the spaCy tokens, and find all the position indices for endorsing entities
+        """
+        Iterate over the spaCy tokens, and find all the position indices for endorsing entities
+        :param nlp_artifacts: artifacts of the nlp engine
+        :param results: list of preliminary recognizer results
+        :return list of results, enhanced where there is an overlap with geo entity
+        """
         geo_entities_positions = self._extract_geo_entities(nlp_artifacts, self.endorsing_entities)
         if not geo_entities_positions:
             return results
