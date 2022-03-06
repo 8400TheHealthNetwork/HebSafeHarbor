@@ -1,8 +1,8 @@
-import re
-from typing import List
-from presidio_analyzer import EntityRecognizer, RecognizerResult, AnalysisExplanation, LemmaContextAwareEnhancer
+from typing import List, Set
+from presidio_analyzer import RecognizerResult, AnalysisExplanation
 from presidio_analyzer.nlp_engine import NlpArtifacts
 
+from hebsafeharbor.common.context_terms_recognizer import ContextTermsRecognizer
 from hebsafeharbor.identifier.signals.lexicon_based_recognizer import LexiconBasedRecognizer
 
 
@@ -13,7 +13,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
     """
 
     DEFAULT_CONFIDENCE_LEVEL = 0.2  # expected confidence level for this recognizer
-    LOCATION_OVERLAP_FACTOR = 0.8  # enhancement factor for this recognizer if overlap with another geo entity found
+    LOCATION_OVERLAP_FACTOR = 0.4  # enhancement factor for this recognizer if overlap with another geo entity found
 
     def __init__(self, name: str, supported_entity: str, phrase_list: List[str], supported_language: str = "he",
                  endorsing_entities=List[str], allowed_prepositions=[], context=List[str]):
@@ -35,6 +35,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
                          supported_language=supported_language, allowed_prepositions=allowed_prepositions)
         self.endorsing_entities = endorsing_entities
         self.context = context
+        self.context_recognizer = ContextTermsRecognizer(context) if context else None
 
     def load(self) -> None:
         """No loading is required."""
@@ -57,27 +58,51 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
         if len(terms_offsets) == 0:
             return results
 
-        # iterate over the spaCy tokens, and find all the position indices for endorsing entities
-        geo_entities_position_set = set()
-        for entity in nlp_artifacts.entities:
-            if entity.label_ in self.endorsing_entities:
-                for char in range(entity.start_char, entity.end_char):
-                    geo_entities_position_set.add(char)
-
         # iterate over potential city offsets and endorse the results using overlap with geo-entities or support words
         for term_start, term_len in terms_offsets:
-            overlap_ratio = len(
-                set(range(term_start, term_start + term_len)).intersection(geo_entities_position_set)) / term_len
-            adjusted_score = self.DEFAULT_CONFIDENCE_LEVEL + (overlap_ratio * self.LOCATION_OVERLAP_FACTOR)
             result = RecognizerResult(
                 entity_type="CITY",
                 start=term_start,
                 end=term_start + term_len,
-                score=adjusted_score,
-                analysis_explanation=AnalysisExplanation(self.name, adjusted_score),
+                score=self.DEFAULT_CONFIDENCE_LEVEL,
+                analysis_explanation=AnalysisExplanation(self.name, self.DEFAULT_CONFIDENCE_LEVEL),
                 recognition_metadata={RecognizerResult.RECOGNIZER_NAME_KEY: self.name},
             )
 
             results.append(result)
+
+        results = self.enhance_using_other_entities(nlp_artifacts, results)
+
+        return results
+
+    @staticmethod
+    def _extract_geo_entities(nlp_artifacts: NlpArtifacts, entity_names: List[str]) -> Set[int]:
+        """
+        Identify positions of other entities in a text that can provide context for entity
+        :param nlp_artifacts: artifacts of the nlp engine
+        :param entity_names: list of entity names
+        :return set of positions in a text string corresponding provided entity names
+        """
+        geo_entities_positions = set()
+        for entity in nlp_artifacts.entities:
+            if entity.label_ in entity_names:
+                for char in range(entity.start_char, entity.end_char):
+                    geo_entities_positions.add(char)
+        return geo_entities_positions
+
+    def enhance_using_other_entities(self, nlp_artifacts: NlpArtifacts, results: List[RecognizerResult]):
+        # iterate over the spaCy tokens, and find all the position indices for endorsing entities
+        geo_entities_positions = self._extract_geo_entities(nlp_artifacts, self.endorsing_entities)
+        if not geo_entities_positions:
+            return results
+
+        for result in results:
+            overlap_ratio = len(
+                set(range(result.start, result.end)).intersection(geo_entities_positions)) / (result.end - result.start)
+            adjusted_score = result.score + (overlap_ratio * self.LOCATION_OVERLAP_FACTOR)
+            if adjusted_score != result.score:
+                result.score = adjusted_score
+                result.analysis_explanation.set_improved_score(adjusted_score)
+                result.analysis_explanation.append_textual_explanation_line("NLP-LOC-enhanced;")
 
         return results

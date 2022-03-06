@@ -9,6 +9,7 @@ from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PRE
     MEDICAL_TEST_PREPOSITIONS
 from hebsafeharbor.identifier import HebSpacyNlpEngine
 from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
+from hebsafeharbor.identifier.context_enhancement.hebrew_context_aware_enhancer import HebrewContextAwareEnhancer
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
 from hebsafeharbor.identifier.signals.general_id_recognizer import GeneralIdRecognizer
@@ -18,7 +19,7 @@ from hebsafeharbor.identifier.signals.heb_preposition_date_recognizer import Pre
 from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinDateRecognizer
 from hebsafeharbor.identifier.signals.hebrew_city_recognizer import AmbiguousHebrewCityRecognizer
 from hebsafeharbor.identifier.signals.israeli_id_recognizer import IsraeliIdNumberRecognizer
-from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
+from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry, LemmaContextAwareEnhancer
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
     IpRecognizer, PhoneRecognizer, SpacyRecognizer, UrlRecognizer
 
@@ -28,6 +29,9 @@ from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
 from hebsafeharbor.lexicons.medical_tests import MEDICAL_TESTS
 from hebsafeharbor.lexicons.medications import MEDICATIONS
 
+CUSTOM_ENHANCEMENT_RECOGNIZER_LIST = [
+    'AmbiguousHebrewCityRecognizer',
+]
 
 class PhiIdentifier:
     """
@@ -86,11 +90,15 @@ class PhiIdentifier:
         for signal in signals:
             registry.add_recognizer(signal)
 
+        context_aware_enhancer = HebrewContextAwareEnhancer(
+            substring_processed_recognizers_list = CUSTOM_ENHANCEMENT_RECOGNIZER_LIST)
+
         # create the AnalyzerEngine using the created registry, NLP engine and supported_languages
         analyzer = AnalyzerEngine(
             registry=registry,
             nlp_engine=nlp_engine,
-            supported_languages=["he"]
+            supported_languages=["he"],
+            context_aware_enhancer=context_aware_enhancer,
         )
 
         return analyzer
@@ -140,14 +148,15 @@ class PhiIdentifier:
         ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
                                                   disambiguated_cities_set,
                                                   allowed_prepositions=LOCATION_PREPOSITIONS))
-        # ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousIsraeliCityRecognizer", "CITY",
-        #                                                  ambiguous_cities_set,
-        #                                                  allowed_prepositions=LOCATION_PREPOSITIONS,
-        #                                                  endorsing_entities=['LOC', 'GPE'],
-        #                                                  context=AMBIGUOUS_CITIES_CONTEXT,
-        #                                                  ),
-        #                    )
-        
+
+        ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousHebrewCityRecognizer", "CITY",
+                                                         ambiguous_cities_set,
+                                                         allowed_prepositions=LOCATION_PREPOSITIONS,
+                                                         endorsing_entities=['LOC', 'GPE'],
+                                                         context=AMBIGUOUS_CITIES_CONTEXT,
+                                                         ),
+                           )
+
         # init disease recognizer
         ner_signals.append(
             LexiconBasedRecognizer("DiseaseRecognizer", "DISEASE", DISEASES, allowed_prepositions=DISEASE_PREPOSITIONS))
