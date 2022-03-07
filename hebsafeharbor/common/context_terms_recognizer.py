@@ -29,16 +29,16 @@ class ContextTermsRecognizer(TermsRecognizer):
             if length == 1 or offset < 0 or offset >= len(text):
                 pass
             else:
-                prefixes_pattern_raw = "|".join(prefixes)
+                prefixes_string = "|".join(prefixes) + ")(" if prefixes else ""
                 pattern = "(\W|^)(" + text[
-                                      offset:end_index_short + 1] + ").*\W(" + prefixes_pattern_raw + ")(" + word + ")(\W|$)"
+                                      offset:end_index_short + 1] + ").*\W(" + prefixes_string + word + ")(\W|$)"
                 found_elements = re.search(pattern, text)
 
                 if found_elements:
                     supported_word_position = found_elements[2]
                     supported_word = text[supported_word_position[0]:supported_word_position[1]]
-                    preposition_position = found_elements[3]
-                    preposition = text[preposition_position[0]:preposition_position[1]]
+                    preposition_position = found_elements[3] if prefixes else None
+                    preposition = text[preposition_position[0]:preposition_position[1]] if prefixes else None
                     offsets.append((supported_word, supported_word_position, preposition, preposition_position))
 
         # drop duplicates
