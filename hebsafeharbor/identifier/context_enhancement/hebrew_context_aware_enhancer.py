@@ -352,12 +352,37 @@ class HebrewContextAwareEnhancer(ContextAwareEnhancer):
         )
 
     @staticmethod
-    def __extract_sentence_containing_position(nlp_artifacts, start):
+    def __extract_sentence_containing_position(nlp_artifacts: NlpArtifacts, start: int) -> str:
+        """
+        Extracting the sentence which contains the start position of recognized entity using sentences from nlp_artifacts
+        :param nlp_artifacts: An abstraction layer which holds different
+                              items which are the result of a NLP pipeline
+                              execution on a given text
+        :param start: The start index of the word in the original text
+        :return: sentence string
+        """
         for sent in nlp_artifacts.tokens.sents:
             if (start >= sent.start_char) & (start <= sent.end_char):
                 return sent.text
         return ''
 
-    def __find_supportive_context_in_sentence(self, sentence, word, recognizer):
-        terms_offsets = recognizer.context_recognizer(sentence, word, recognizer.allowed_prepositions)
-        return terms_offsets
+    def __find_supportive_context_in_sentence(self, sentence: str, word: str, recognizer: EntityRecognizer):
+        """
+        Extracting the sentence which contains the start position of recognized entity using sentences from nlp_artifacts
+        :param sentence: sentence string
+        :param word: recognized entity string
+        :param recognizer: entity recognizer
+        :return: details of supportive context recognized
+        """
+        # Sanity
+        if not recognizer.context_recognizer:
+            logger.warning("Context recognizer is not defined")
+            return None
+        if recognizer.allowed_prepositions:
+            prep = recognizer.allowed_prepositions
+        else:
+            logger.warning("Prepositions are not defined")
+            prep = None
+
+        contexts = recognizer.context_recognizer(sentence, word, prep)
+        return contexts

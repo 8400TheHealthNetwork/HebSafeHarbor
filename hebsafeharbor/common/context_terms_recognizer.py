@@ -23,7 +23,7 @@ class ContextTermsRecognizer(TermsRecognizer):
         :param prefixes: prefixed prepositions list
         :return: List of starting offsets of matches and their length
         """
-        offsets = []
+        context = []
         for end_index_short, length in self._automaton.iter(text):
             offset = end_index_short - length + 1
             if length == 1 or offset < 0 or offset >= len(text):
@@ -39,9 +39,9 @@ class ContextTermsRecognizer(TermsRecognizer):
                     supported_word = text[supported_word_position[0]:supported_word_position[1]]
                     preposition_position = found_elements[3] if prefixes else None
                     preposition = text[preposition_position[0]:preposition_position[1]] if prefixes else None
-                    offsets.append((supported_word, supported_word_position, preposition, preposition_position))
+                    context.append((supported_word, supported_word_position, preposition, preposition_position))
 
         # drop duplicates
-        offsets = list(set(offsets))
+        contexts = list(set(context))
 
-        return offsets
+        return contexts
