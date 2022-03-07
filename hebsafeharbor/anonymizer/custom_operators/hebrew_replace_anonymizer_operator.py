@@ -19,7 +19,7 @@ class ReplaceInHebrew(Operator):
             return "<ארגון_>"
         elif entity_type in ["CREDIT_CARD", "ISRAELI_ID_NUMBER", "ID"]:
             return "<מזהה_>"
-        elif entity_type in ["EMAIL_ADDRESS", "IP_ADDRESS", "PHONE_NUMBER"]:
+        elif entity_type in ["EMAIL_ADDRESS", "IP_ADDRESS", "PHONE_NUMBER", "URL"]:
             return "<קשר_>"
         elif entity_type in ["DATE"]:
             return "<תאריך_>"
