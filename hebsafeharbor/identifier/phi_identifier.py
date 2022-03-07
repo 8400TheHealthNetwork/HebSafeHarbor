@@ -1,9 +1,5 @@
 from typing import List
 
-from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
-from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
-    IpRecognizer, PhoneRecognizer, UrlRecognizer
-
 from hebsafeharbor.common.city_utils import (
     BELOW_THRESHOLD_CITIES_LIST,
     ABOVE_THRESHOLD_CITIES_LIST,
@@ -23,14 +19,9 @@ from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor impo
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
 
 from hebsafeharbor.identifier.signals import *
-from hebsafeharbor.identifier.signals.heb_date_recognizer import HebDateRecognizer
-from hebsafeharbor.identifier.signals.heb_preposition_date_recognizer import PrepositionDateRecognizer
-from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinDateRecognizer
-from hebsafeharbor.identifier.signals.hebrew_city_recognizer import AmbiguousHebrewCityRecognizer
-from hebsafeharbor.identifier.signals.israeli_id_recognizer import IsraeliIdNumberRecognizer
-from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry, LemmaContextAwareEnhancer
+from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
-    IpRecognizer, PhoneRecognizer, SpacyRecognizer, UrlRecognizer
+    IpRecognizer, PhoneRecognizer, UrlRecognizer
 
 from hebsafeharbor.lexicons.disease import DISEASES
 from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
