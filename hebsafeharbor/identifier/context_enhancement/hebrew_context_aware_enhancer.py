@@ -16,7 +16,7 @@ class HebrewContextAwareEnhancer(ContextAwareEnhancer):
     A class representing a custom context aware enhancer logic.
 
     Context words might enhance confidence score of a recognized entity,
-    HebrewContextAwareEnhancer is a customization context aware logic,
+    HebrewContextAwareEnhancer is a customized context aware logic,
     it enhances specified recognizers outcomes according to custom logic
     (ex. strict match for context word, additional logic for preposition handling),
     and duplicates LemmaContextAwareEnhancer for all other classes ,
