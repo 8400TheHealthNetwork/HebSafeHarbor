@@ -1,13 +1,12 @@
 import copy
-import re
 from typing import List
 
 from presidio_analyzer import RecognizerResult
 
 from hebsafeharbor.common.document import Doc
 from hebsafeharbor.identifier.consolidation.conflict_handler import ExactMatch, SameCategory, SameBoundaries, Mixed
-from hebsafeharbor.identifier.consolidation.consolidation_config import ENTITY_TYPE_TO_CATEGORY, ENTITY_TYPES_TO_IGNORE, \
-    ConflictCase, ENTITY_TYPES_TO_POSTPROCESS
+from hebsafeharbor.identifier.consolidation.consolidation_config import ENTITY_TYPE_TO_CATEGORY, ConflictCase
+from hebsafeharbor.identifier.consolidation.filter_entities import FilterEntities
 from hebsafeharbor.identifier.consolidation.post_consolidation.city_country_post_consolidator import \
     CityCountryPostConsolidator
 from hebsafeharbor.identifier.consolidation.overlap_resolver import PreferLongestEntity, ContextBasedResolver, \
@@ -22,6 +21,7 @@ class NerConsolidator:
     """
 
     def __init__(self):
+        self.filter_entities = FilterEntities()
         self.prefer_longest_entity_resolver = PreferLongestEntity()
         self.context_based_resolver = ContextBasedResolver()
         self.category_majority_resolver = CategoryMajorityResolver()
@@ -42,7 +42,7 @@ class NerConsolidator:
         """
 
         recognized_entities = copy.deepcopy(doc.smoothed_entities)
-        filtered_entities = NerConsolidator.filter_entities(recognized_entities, doc)
+        filtered_entities = self.filter_entities(recognized_entities, doc)
         group = NerConsolidator.get_next_overlapped_entities_group(filtered_entities, 0)
         consolidated_entities = []
         while len(group) > 0:
@@ -150,54 +150,3 @@ class NerConsolidator:
         if same_boundaries:
             return ConflictCase.SAME_BOUNDARIES
         return ConflictCase.MIXED
-
-    @staticmethod
-    def filter_entities(recognized_entities: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
-        """
-        filters recognized entities that are not satisfy some initial requirements and therefore should not be
-        considered as part of the consolidation:
-        1. remove entities from irrelevant types
-        2. filter out ORG and NAME entities that contains at least one English letter
-        3. filter out DATE entities that are float number
-
-        :param recognized_entities: list of recognized entities
-        :param doc: Doc object
-        :return an updated list of recognized entities after filtering
-        """
-        # filter out entities from irrelevant types
-        filtered_entities = filter(
-            lambda entity: entity.entity_type not in ENTITY_TYPES_TO_IGNORE.union(ENTITY_TYPES_TO_POSTPROCESS),
-            recognized_entities)
-
-        # filter out ORG and NAME entities that contains at least one English letter
-        ENGLISH_LETTER_REGEX = re.compile(r"[a-z]|[A-z]")
-        filtered_entities = list(filter(
-            lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type] not in ["ORG",
-                                                                               "NAME"] or ENGLISH_LETTER_REGEX.search(
-                doc.text[entity.start:entity.end]) is None, filtered_entities))
-
-        # filter out DATE entities that are float number
-        result_entities = []
-        for entity in filtered_entities:
-            if ENTITY_TYPE_TO_CATEGORY[entity.entity_type] != "DATE":
-                result_entities.append(entity)
-            else:
-                entity_text = doc.text[entity.start:entity.end]
-                split_by_period = entity_text.split(".")
-
-                # if there aren't two parts it doesn't float number
-                if len(split_by_period) != 2:
-                    result_entities.append(entity)
-
-                # both parts should be numeric otherwise it is not a float number
-                elif not split_by_period[0].isnumeric() or not split_by_period[1].isnumeric():
-                    result_entities.append(entity)
-
-                # leading zero is allowed in float number only if the first part is zero
-                elif len(split_by_period[0]) == 1:
-                    result_entities.append(entity)
-                elif len(split_by_period[0]) > 1 and split_by_period[0][0] == "0":
-                    result_entities.append(entity)
-
-        filtered_entities = sorted(result_entities, key=lambda entity: (entity.start, entity.end))
-        return filtered_entities
