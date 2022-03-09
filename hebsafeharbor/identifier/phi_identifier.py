@@ -23,6 +23,7 @@ from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateR
     IpRecognizer, PhoneRecognizer, UrlRecognizer
 
 from hebsafeharbor.lexicons.disease import DISEASES
+from hebsafeharbor.lexicons.lab_tests import LAB_TESTS
 from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
 from hebsafeharbor.lexicons.medical_tests import MEDICAL_TESTS
 from hebsafeharbor.lexicons.medications import MEDICATIONS
@@ -160,7 +161,7 @@ class PhiIdentifier:
                                    allowed_prepositions=MEDICATION_PREPOSITIONS))
         # init medical tests recognizer
         ner_signals.append(
-            LexiconBasedRecognizer("MedicalTestRecognizer", "MEDICAL_TEST", MEDICAL_TESTS + MEDICAL_DEVICE,
+            LexiconBasedRecognizer("MedicalTestRecognizer", "MEDICAL_TEST", MEDICAL_TESTS + MEDICAL_DEVICE + LAB_TESTS,
                                    allowed_prepositions=MEDICAL_TEST_PREPOSITIONS))
         return ner_signals
 
