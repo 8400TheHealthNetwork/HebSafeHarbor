@@ -14,7 +14,6 @@ from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PRE
     MEDICAL_TEST_PREPOSITIONS
 from hebsafeharbor.identifier import HebSpacyNlpEngine
 from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
-from hebsafeharbor.identifier.context_enhancement.hebrew_context_aware_enhancer import HebrewContextAwareEnhancer
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
 
@@ -89,18 +88,11 @@ class PhiIdentifier:
         for signal in signals:
             registry.add_recognizer(signal)
 
-        # initialize custom context aware enhancer, which will enhance specified recognizers according to custom logic
-        # (ex. strict match for context word, additional logic for preposition handling),
-        # and will use LemmaContextAwareEnhancer for all other classes
-        context_aware_enhancer = HebrewContextAwareEnhancer(
-            substring_processed_recognizers_list = CUSTOM_ENHANCEMENT_RECOGNIZER_LIST)
-
         # create the AnalyzerEngine using the created registry, NLP engine and supported_languages
         analyzer = AnalyzerEngine(
             registry=registry,
             nlp_engine=nlp_engine,
             supported_languages=["he"],
-            context_aware_enhancer=context_aware_enhancer,
         )
 
         return analyzer

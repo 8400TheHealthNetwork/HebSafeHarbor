@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 from presidio_analyzer import RecognizerResult, AnalysisExplanation
 from presidio_analyzer.nlp_engine import NlpArtifacts
 
@@ -14,6 +14,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
 
     DEFAULT_CONFIDENCE_LEVEL = 0.2  # expected confidence level for this recognizer
     LOCATION_OVERLAP_FACTOR = 0.4  # enhancement factor for this recognizer if overlap with another geo entity found
+    CONTEXT_ENHANCEMENT_FACTOR = 0.4  # enhancement factor for this recognizer if overlap with another geo entity found
 
     def __init__(self, name: str, supported_entity: str, phrase_list: List[str], supported_language: str = "he",
                  endorsing_entities=List[str], allowed_prepositions=[], context=List[str]):
@@ -75,6 +76,55 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
 
         return results
 
+    def enhance_using_context(
+        self,
+        text: str,
+        raw_recognizer_results: List[RecognizerResult],
+        other_raw_recognizer_results: List[RecognizerResult],
+        nlp_artifacts: NlpArtifacts,
+        context: Optional[List[str]] = None,
+    ) -> List[RecognizerResult]:
+        """Overrides generic context enhancer with recognizer-specific.
+        Enhance confidence score using context of the entity.
+
+        in case a result score is boosted, derived class need to update
+        result.recognition_metadata[RecognizerResult.IS_SCORE_ENHANCED_BY_CONTEXT_KEY]
+
+        :param text: The actual text that was analyzed
+        :param raw_recognizer_results: This recognizer's results, to be updated
+        based on recognizer specific context.
+        :param other_raw_recognizer_results: Other recognizer results matched in
+        the given text to allow related entity context enhancement
+        :param nlp_artifacts: The nlp artifacts contains elements
+                              such as lemmatized tokens for better
+                              accuracy of the context enhancement process
+        :param context: list of context words
+        """
+
+        for result in raw_recognizer_results:
+            result.recognition_metadata[RecognizerResult.IS_SCORE_ENHANCED_BY_CONTEXT_KEY] = True
+            word = text[result.start:result.end]
+
+            sentence = self.__extract_sentence_containing_position(
+                nlp_artifacts=nlp_artifacts, start=result.start
+            )
+
+            if sentence != "":
+                supportive_context = self.__find_supportive_context_in_sentence(
+                    sentence, word
+                )
+                if supportive_context:
+                    result.score += self.CONTEXT_ENHANCEMENT_FACTOR
+
+                    # Update the explainability object with context information
+                    # helped improving the score
+                    result.analysis_explanation.set_supportive_context_word(
+                        supportive_context
+                    )
+                    result.analysis_explanation.set_improved_score(result.score)
+
+        return raw_recognizer_results
+
     @staticmethod
     def _extract_geo_entities(nlp_artifacts: NlpArtifacts, entity_names: List[str]) -> Set[int]:
         """
@@ -111,3 +161,36 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
                 result.analysis_explanation.append_textual_explanation_line("NLP-LOC-enhanced;")
 
         return results
+
+    @staticmethod
+    def __extract_sentence_containing_position(nlp_artifacts: NlpArtifacts, start: int) -> str:
+        """
+        Extracting the sentence which contains the start position of recognized entity using sentences from nlp_artifacts
+        :param nlp_artifacts: An abstraction layer which holds different
+                              items which are the result of a NLP pipeline
+                              execution on a given text
+        :param start: The start index of the word in the original text
+        :return: sentence string
+        """
+        for sent in nlp_artifacts.tokens.sents:
+            if (start >= sent.start_char) & (start <= sent.end_char):
+                return sent.text
+        return ''
+
+    def __find_supportive_context_in_sentence(self, sentence: str, word: str):
+        """
+        Extracting the sentence which contains the start position of recognized entity using sentences from nlp_artifacts
+        :param sentence: sentence string
+        :param word: recognized entity string
+        :return: details of supportive context recognized
+        """
+        # Sanity
+        if not self.context_recognizer:
+            return None
+        if self.allowed_prepositions:
+            prep = self.allowed_prepositions
+        else:
+            prep = None
+
+        contexts = self.context_recognizer(sentence, word, prep)
+        return contexts
