@@ -14,7 +14,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
 
     DEFAULT_CONFIDENCE_LEVEL = 0.2  # expected confidence level for this recognizer
     LOCATION_OVERLAP_FACTOR = 0.4  # enhancement factor for this recognizer if overlap with another geo entity found
-    CONTEXT_ENHANCEMENT_FACTOR = 0.4  # enhancement factor for this recognizer if overlap with another geo entity found
+    CONTEXT_ENHANCEMENT_FACTOR = 0.4  # enhancement factor for this recognizer if supportive context found
 
     def __init__(self, name: str, supported_entity: str, phrase_list: List[str], supported_language: str = "he",
                  endorsing_entities=List[str], allowed_prepositions=[], context=List[str]):
