@@ -59,7 +59,7 @@ class FilterEntities:
         # seasons
         result_entities = []
         for entity in filtered_entities:
-            if ENTITY_TYPE_TO_CATEGORY[entity.entity_type] != "DATE":
+            if (ENTITY_TYPE_TO_CATEGORY[entity.entity_type] != "DATE") and (ENTITY_TYPE_TO_CATEGORY[entity.entity_type] != "TIME"):
                 result_entities.append(entity)
             else:
                 entity_text = doc.text[entity.start:entity.end]
