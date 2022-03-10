@@ -35,11 +35,9 @@ class ContextTermsRecognizer(TermsRecognizer):
                 found_elements = re.search(pattern, text)
 
                 if found_elements:
-                    supported_word_position = found_elements.regs[2]
                     supported_word = found_elements[2]
-                    preposition_position = found_elements.regs[3] if prefixes else None
-                    preposition = found_elements[3] if prefixes else None
-                    context.append((supported_word, supported_word_position, preposition, preposition_position))
+                    preposition = found_elements[3] if prefixes else ""
+                    context.append(supported_word + " " + preposition)
 
         # drop duplicates
         contexts = list(set(context))
