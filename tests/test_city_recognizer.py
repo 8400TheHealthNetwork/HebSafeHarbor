@@ -53,7 +53,7 @@ def test_ambigous_city_simple(he_vocab, score, entity_type, words):
                                                      ])
 def test_ambigous_city_enhanced(he_vocab, score, entity_type, text, supportive_context_word,textual_explanation,case):
     LOGGER.info(case)
-    nlp_engine = HebSpacyNlpEngine(models={"he": "he_ner_news_trf"})
+    nlp_engine = HebSpacyNlpEngine()
     ambiguous_cities_set = set(
         AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST).union(
         set(AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST))
