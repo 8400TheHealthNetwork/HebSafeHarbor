@@ -181,18 +181,18 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
                               items which are the result of a NLP pipeline
                               execution on a given text
         :param result_start: The start index of the entity in the original text
-        :return: sentence string
+        :return: sentence part string from sentence start till recognized entity start
         """
         for sent in nlp_artifacts.tokens.sents:
             if (result_start >= sent.start_char) & (result_start <= sent.end_char):
                 return sent.text[:result_start - sent.start_char]
         return ''
 
-    def __find_supportive_context_in_sentence(self, sentence: str):
+    def __find_supportive_context_in_sentence(self, sentence: str) -> str:
         """
         Extracting the sentence which contains the start position of recognized entity using sentences from nlp_artifacts
-        :param sentence: sentence string
-        :return: details of supportive context recognized
+        :param sentence: sentence part string
+        :return: supportive context string recognized
         """
         # Sanity
         if not self.context_recognizer:
@@ -208,7 +208,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
         :param result_start: The start index of the entity in the original text
         :return: True/False flag
         """
-        if result_start >= 2:
+        if (result_start >= 2) and self.allowed_prepositions:
             if (text[result_start - 1] in self.allowed_prepositions) and (re.match(r"\W", text[result_start - 2])):
                 return True
         return False
