@@ -71,7 +71,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
                 entity_type="CITY",
                 start=term_start,
                 end=term_start + term_len,
-                score=self.DEFAULT_CONFIDENCE_LEVEL,
+                score=self.default_confidence_level,
                 analysis_explanation=AnalysisExplanation(self.name, self.default_confidence_level),
                 recognition_metadata={RecognizerResult.RECOGNIZER_NAME_KEY: self.name},
             )

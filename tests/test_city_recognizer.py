@@ -48,7 +48,7 @@ def test_ambigous_city_simple(he_vocab, score, entity_type, words):
     assert results[0].entity_type == entity_type
 
 @pytest.mark.parametrize("text,score,entity_type,supportive_context_word,textual_explanation,case", [("רמות גלוקוז בצום", 0.2, "CITY","",None,"Test with no enhancement"),
-                                                     ("הגיע לרמות", 0.6000000000000001, "CITY",["הגיע ל"], None,"Test enhancement with context"),
+                                                     ("הגיע לרמות", 0.6000000000000001, "CITY","הגיע", None,"Test enhancement with context"),
                                                      ("מטופל ממושב אודם", 0.6000000000000001, "CITY","","NLP-LOC-enhanced;", "Test enhancement with NLP artifacts"),
                                                      ])
 def test_ambigous_city_enhanced(he_vocab, score, entity_type, text, supportive_context_word,textual_explanation,case):
