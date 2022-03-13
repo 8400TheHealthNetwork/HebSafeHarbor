@@ -65,7 +65,9 @@ doc = {"text": text}
 
 output = hsh([doc])
 
-print(output)
+print(output[0].anonymized_text.text)
+
+# > <שם_> התאשפזה ב<יום_>.02.2012 וגרה <מיקום_> 16 רמת גן
 ```
 
 ## Docker Compose
