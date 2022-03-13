@@ -28,9 +28,6 @@ from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
 from hebsafeharbor.lexicons.medical_tests import MEDICAL_TESTS
 from hebsafeharbor.lexicons.medications import MEDICATIONS
 
-CUSTOM_ENHANCEMENT_RECOGNIZER_LIST = [
-    'AmbiguousHebrewCityRecognizer',
-]
 
 class PhiIdentifier:
     """
