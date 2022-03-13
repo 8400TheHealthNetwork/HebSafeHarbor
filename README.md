@@ -65,7 +65,7 @@ doc = {"text": text}
 
 output = hsh([doc])
 
-print(output)
+print(output[0].anonymized_text.text)
 ```
 
 ## Docker Compose
