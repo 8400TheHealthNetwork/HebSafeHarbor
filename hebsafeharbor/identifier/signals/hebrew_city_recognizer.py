@@ -17,7 +17,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
     CONTEXT_ENHANCEMENT_FACTOR = 0.4  # enhancement factor for this recognizer if supportive context found
 
     def __init__(self, name: str, supported_entity: str, phrase_list: List[str], supported_language: str = "he",
-                 endorsing_entities=List[str], allowed_prepositions=[], context=List[str]):
+                 endorsing_entities:List[str]=None, allowed_prepositions: List[str]=None, context:List[str] = None):
         """
         Initializes AmbiguousHebrewCityRecognizer
 
@@ -34,8 +34,8 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
         """
         super().__init__(name=name, supported_entity=supported_entity, phrase_list=phrase_list,
                          supported_language=supported_language, allowed_prepositions=allowed_prepositions)
-        self.endorsing_entities = endorsing_entities
-        self.context = context
+        self.endorsing_entities = endorsing_entities if endorsing_entities else []
+        self.context = context if context else []
         self.context_recognizer = ContextTermsRecognizer(context) if context else None
 
     def load(self) -> None:
