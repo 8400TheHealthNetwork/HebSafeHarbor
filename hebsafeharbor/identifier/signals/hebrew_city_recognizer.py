@@ -14,7 +14,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
     """
 
     def __init__(self, name: str, supported_entity: str, phrase_list: List[str], supported_language: str = "he",
-                 endorsing_entities=List[str], allowed_prepositions=[], context=List[str],
+                 endorsing_entities: List[str] = None, allowed_prepositions: List[str] = None, context: List[str] = None,
                  default_confidence_level: float = 0.2,
                  location_overlap_factor: float = 0.4, context_enhancement_factor: float = 0.4,
                  ):
@@ -37,8 +37,8 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
         """
         super().__init__(name=name, supported_entity=supported_entity, phrase_list=phrase_list,
                          supported_language=supported_language, allowed_prepositions=allowed_prepositions)
-        self.endorsing_entities = endorsing_entities
-        self.context = context
+        self.endorsing_entities = endorsing_entities if endorsing_entities else []
+        self.context = context if context else []
         self.context_recognizer = TermsRecognizer(context) if context else None
         self.default_confidence_level = default_confidence_level
         self.location_overlap_factor = location_overlap_factor
