@@ -190,7 +190,7 @@ class AmbiguousHebrewCityRecognizer(LexiconBasedRecognizer):
 
     def __find_supportive_context_in_sentence(self, sentence: str) -> str:
         """
-        Extracting the sentence which contains the start position of recognized entity using sentences from nlp_artifacts
+        Extract one or more supportive context words in sentence string
         :param sentence: sentence part string
         :return: supportive context string recognized
         """
