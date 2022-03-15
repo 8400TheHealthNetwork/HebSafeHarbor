@@ -43,6 +43,7 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
         consolidated_entities = self.sort_entities_by_offset_start(consolidated_entities)
 
         prev_entity_id = 0 # to handle cases where overlap is between more than 2 entities. Ex. שרון גשר מר"ג
+        # TODO: when any entity is adjusted, resort and loop over the list again (Ex. קיבוץ עין החורש)
         for cur_entity_id in range(1, len(consolidated_entities)):
             if consolidated_entities[cur_entity_id].start <= consolidated_entities[prev_entity_id].end:
                 # Define which entity type has priority

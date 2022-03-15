@@ -1,9 +1,5 @@
 from typing import List
 
-from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
-from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
-    IpRecognizer, PhoneRecognizer, UrlRecognizer
-
 from hebsafeharbor.common.city_utils import (
     BELOW_THRESHOLD_CITIES_LIST,
     ABOVE_THRESHOLD_CITIES_LIST,
@@ -22,6 +18,9 @@ from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor impo
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
 
 from hebsafeharbor.identifier.signals import *
+from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
+from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
+    IpRecognizer, PhoneRecognizer, UrlRecognizer
 
 from hebsafeharbor.lexicons.disease import DISEASES
 from hebsafeharbor.lexicons.lab_tests import LAB_TESTS
@@ -91,7 +90,7 @@ class PhiIdentifier:
         analyzer = AnalyzerEngine(
             registry=registry,
             nlp_engine=nlp_engine,
-            supported_languages=["he"]
+            supported_languages=["he"],
         )
 
         return analyzer
@@ -141,13 +140,14 @@ class PhiIdentifier:
         ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
                                                   disambiguated_cities_set,
                                                   allowed_prepositions=LOCATION_PREPOSITIONS))
-        # ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousIsraeliCityRecognizer", "CITY",
-        #                                                  ambiguous_cities_set,
-        #                                                  allowed_prepositions=LOCATION_PREPOSITIONS,
-        #                                                  endorsing_entities=['LOC', 'GPE'],
-        #                                                  context=AMBIGUOUS_CITIES_CONTEXT,
-        #                                                  ),
-        #                    )
+
+        ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousHebrewCityRecognizer", "CITY",
+                                                         ambiguous_cities_set,
+                                                         allowed_prepositions=LOCATION_PREPOSITIONS,
+                                                         endorsing_entities=['LOC', 'GPE'],
+                                                         context=AMBIGUOUS_CITIES_CONTEXT,
+                                                         ),
+                           )
 
         # init disease recognizer
         ner_signals.append(
