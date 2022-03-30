@@ -26,7 +26,7 @@ SELECT ?item ?itemLabel ?itemAltLabel
 WHERE 
 {
   ?item wdt:<RELATION> wd:<WIKI_ID>.
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "he". } # Helps get the label in your language, if not, then en language
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "es". } # Helps get the label in your language, if not, then en language
 }
 """
 
