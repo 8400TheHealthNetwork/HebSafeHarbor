@@ -224,6 +224,10 @@ In our case, **HSH_SERVER = 172.17.0.2**
 
 Read more [here](https://docs.docker.com/network/network-tutorial-standalone/)
 
+## Special Thanks
+NLP capabilities are based on resources developedg by [ONLP Lab](https://nlp.biu.ac.il/~rtsarfaty/onlp) ([the lab git](https://github.com/OnlpLab)).
+Especialy [AlephBERT](https://github.com/OnlpLab/AlephBERT) and [NEMO](https://github.com/OnlpLab/NEMO).
+
 -----
 
 HebSafeHarbor is an open-source project developed by [8400 The Health Network](https://www.8400thn.org/).
