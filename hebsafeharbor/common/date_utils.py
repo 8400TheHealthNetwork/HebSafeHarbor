@@ -176,4 +176,55 @@ def extract_numerical_date_components(text:str) -> Optional[DateMention]:
                     day = set_date_mention_component(matched,ind=1)
             return DateMention(day=day,month=month, year=year,text=text)
         return None
+
+def is_float(txt:str)->bool:
+    '''
+    Checks if a string is a valid float number
+    :param txt: a string
+    :return True if txt is a float number and False otherwise
+    '''
+    if len(txt.split('.'))!=2:
+        return False
+
+    try: 
+        float(txt)
+        return True
+    except:
+        return False
+
+def is_short_date(txt:str)->bool:
+    '''
+    Checks if a string can represent a partial date (i.e dd/mm, mm/yy etc.)
+    :param txt: a string
+    :return True if txt can represent a partial date and False otherwise
+    '''
+    if len(re.split(r"[./-]",txt))==2:
+        return True
+    return False
+
+def is_day_of_week(txt:str) -> bool:
+    '''
+    Check if a string represents a day of the week in either English or Hebrew
+    :param txt: string
+    :return True id txt is one of the days of the week and False otherwise
+    '''
+    dow_list = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
+    heb_dow_list = ["שבת","שישי","חמישי","רביעי","שלישי","שני","ראשון"]
+    if (txt.lower() in dow_list) or (re.search(rf"(?:[ב,ה,ל,מה])?{'|'.join(heb_dow_list)}",txt.lower())):
+        return True
+    return False
+
+def is_season(txt:str) -> bool:
+    ''' Checks if a string represents one of the seasons (in English or Hebrew)
+    :param txt: string
+    "return True if text is a season and False otherwise
+    '''
+    season_list = ["summer","fall","winter","spring"]
+    heb_season_list = ["אביב","סתיו","חורף","קיץ"]
+    if (txt.lower() in season_list) or (re.match(rf"([ב,ה,ל,מה])?({'|'.join(heb_season_list)})",txt.lower())):
+        return True
+    return False
+
+
+
     

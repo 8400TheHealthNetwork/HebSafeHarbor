@@ -1,8 +1,13 @@
 from typing import List
 
-from hebsafeharbor.common.city_utils import BELOW_THRESHOLD_CITIES_LIST, ABOVE_THRESHOLD_CITIES_LIST, \
-    ABBREVIATIONS_LIST, AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST, AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST, \
+from hebsafeharbor.common.city_utils import (
+    BELOW_THRESHOLD_CITIES_LIST,
+    ABOVE_THRESHOLD_CITIES_LIST,
+    ABBREVIATIONS_LIST,
+    AMBIGOUS_BELOW_THRESHOLD_CITIES_LIST,
+    AMBIGOUS_ABOVE_THRESHOLD_CITIES_LIST,
     AMBIGUOUS_CITIES_CONTEXT
+)
 from hebsafeharbor.common.country_utils import COUNTRY_DICT
 from hebsafeharbor.common.document import Doc
 from hebsafeharbor.common.prepositions import LOCATION_PREPOSITIONS, DISEASE_PREPOSITIONS, MEDICATION_PREPOSITIONS, \
@@ -11,19 +16,14 @@ from hebsafeharbor.identifier import HebSpacyNlpEngine
 from hebsafeharbor.identifier.consolidation.consolidator import NerConsolidator
 from hebsafeharbor.identifier.entity_smoother.entity_smoother_rule_executor import EntitySmootherRuleExecutor
 from hebsafeharbor.identifier.entity_spliters.entity_splitter_rule_executor import EntitySplitterRuleExecutor
-from hebsafeharbor.identifier.signals.general_id_recognizer import GeneralIdRecognizer
 
-from hebsafeharbor.identifier.signals.heb_date_recognizer import HebDateRecognizer
-from hebsafeharbor.identifier.signals.heb_preposition_date_recognizer import PrepositionDateRecognizer
-from hebsafeharbor.identifier.signals.heb_latin_date_recognizer import HebLatinDateRecognizer
-from hebsafeharbor.identifier.signals.hebrew_city_recognizer import AmbiguousHebrewCityRecognizer
-from hebsafeharbor.identifier.signals.israeli_id_recognizer import IsraeliIdNumberRecognizer
+from hebsafeharbor.identifier.signals import *
 from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistry
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
-    IpRecognizer, PhoneRecognizer, SpacyRecognizer, UrlRecognizer
+    IpRecognizer, PhoneRecognizer, UrlRecognizer
 
-from hebsafeharbor.identifier.signals.lexicon_based_recognizer import LexiconBasedRecognizer
 from hebsafeharbor.lexicons.disease import DISEASES
+from hebsafeharbor.lexicons.lab_tests import LAB_TESTS
 from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
 from hebsafeharbor.lexicons.medical_tests import MEDICAL_TESTS
 from hebsafeharbor.lexicons.medications import MEDICATIONS
@@ -90,7 +90,7 @@ class PhiIdentifier:
         analyzer = AnalyzerEngine(
             registry=registry,
             nlp_engine=nlp_engine,
-            supported_languages=["he"]
+            supported_languages=["he"],
         )
 
         return analyzer
@@ -140,14 +140,15 @@ class PhiIdentifier:
         ner_signals.append(LexiconBasedRecognizer("IsraeliCityRecognizer", "CITY",
                                                   disambiguated_cities_set,
                                                   allowed_prepositions=LOCATION_PREPOSITIONS))
-        # ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousIsraeliCityRecognizer", "CITY",
-        #                                                  ambiguous_cities_set,
-        #                                                  allowed_prepositions=LOCATION_PREPOSITIONS,
-        #                                                  endorsing_entities=['LOC', 'GPE'],
-        #                                                  context=AMBIGUOUS_CITIES_CONTEXT,
-        #                                                  ),
-        #                    )
-        
+
+        ner_signals.append(AmbiguousHebrewCityRecognizer("AmbiguousHebrewCityRecognizer", "CITY",
+                                                         ambiguous_cities_set,
+                                                         allowed_prepositions=LOCATION_PREPOSITIONS,
+                                                         endorsing_entities=['LOC', 'GPE'],
+                                                         context=AMBIGUOUS_CITIES_CONTEXT,
+                                                         ),
+                           )
+
         # init disease recognizer
         ner_signals.append(
             LexiconBasedRecognizer("DiseaseRecognizer", "DISEASE", DISEASES, allowed_prepositions=DISEASE_PREPOSITIONS))
@@ -157,7 +158,7 @@ class PhiIdentifier:
                                    allowed_prepositions=MEDICATION_PREPOSITIONS))
         # init medical tests recognizer
         ner_signals.append(
-            LexiconBasedRecognizer("MedicalTestRecognizer", "MEDICAL_TEST", MEDICAL_TESTS + MEDICAL_DEVICE,
+            LexiconBasedRecognizer("MedicalTestRecognizer", "MEDICAL_TEST", MEDICAL_TESTS + MEDICAL_DEVICE + LAB_TESTS,
                                    allowed_prepositions=MEDICAL_TEST_PREPOSITIONS))
         return ner_signals
 
@@ -171,7 +172,7 @@ class PhiIdentifier:
         hebspacy_label_groups = [
             ({ent}, {ent}) for ent in hebspacy_entities
         ]
-        hebspacy_recognizer = SpacyRecognizer(supported_language="he",
+        hebspacy_recognizer = SpacyRecognizerWithConfidence(supported_language="he",
                                               supported_entities=hebspacy_entities,
                                               ner_strength=1.0,
                                               check_label_groups=hebspacy_label_groups)

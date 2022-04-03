@@ -65,7 +65,9 @@ doc = {"text": text}
 
 output = hsh([doc])
 
-print(output)
+print(output[0].anonymized_text.text)
+
+# > <שם_> התאשפזה ב<יום_>.02.2012 וגרה <מיקום_> 16 רמת גן
 ```
 
 ## Docker Compose
@@ -221,6 +223,10 @@ In our case, **HSH_SERVER = 172.17.0.2**
 
 
 Read more [here](https://docs.docker.com/network/network-tutorial-standalone/)
+
+## Special Thanks
+NLP capabilities are based on resources developedg by [ONLP Lab](https://nlp.biu.ac.il/~rtsarfaty/onlp) ([the lab git](https://github.com/OnlpLab)).
+Especialy [AlephBERT](https://github.com/OnlpLab/AlephBERT) and [NEMO](https://github.com/OnlpLab/NEMO).
 
 -----
 

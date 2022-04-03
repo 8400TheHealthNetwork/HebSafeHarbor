@@ -24,7 +24,7 @@ class HebLatinDateRecognizer(PatternRecognizer):
         ),               
     ]
 
-    SUPPORTED_ENTITY = "DATE"
+    SUPPORTED_ENTITY = "LATIN_DATE"
     
     def __init__(self):
         """

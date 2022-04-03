@@ -63,6 +63,8 @@ class PhiAnonymizer:
                                                 {"lambda": lambda x, y: self.operators[0].operate(x, y)}),
                 "IP_ADDRESS": OperatorConfig(self.operators[0].operator_name(),
                                              {"lambda": lambda x, y: self.operators[0].operate(x, y)}),
+                "URL": OperatorConfig(self.operators[0].operator_name(),
+                                      {"lambda": lambda x, y: self.operators[0].operate(x, y)}),
                 "PHONE_NUMBER": OperatorConfig(self.operators[0].operator_name(),
                                                {"lambda": lambda x, y: self.operators[0].operate(x, y)}),
                 "DATE": OperatorConfig(self.operators[0].operator_name(),
@@ -72,9 +74,9 @@ class PhiAnonymizer:
                 "MEDICAL_DATE": OperatorConfig(self.operators[2].operator_name(),
                                                {"lambda": lambda x: self.operators[2].operate(x)}),
                 "COUNTRY": OperatorConfig(self.operators[3].operator_name(),
-                                               {"lambda": lambda x: self.operators[3].operate(x)}),
+                                          {"lambda": lambda x: self.operators[3].operate(x)}),
                 "CITY": OperatorConfig(self.operators[4].operator_name(),
-                                          {"lambda": lambda x: self.operators[4].operate(x)}),
+                                       {"lambda": lambda x: self.operators[4].operate(x)}),
             },
         )
         anonymized_results.items.sort(key=lambda res: res.start)

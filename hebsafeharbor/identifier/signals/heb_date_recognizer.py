@@ -26,7 +26,7 @@ class HebDateRecognizer(PatternRecognizer):
         
     ]
 
-    SUPPORTED_ENTITY = "DATE"
+    SUPPORTED_ENTITY = "HEBREW_DATE"
     
     def __init__(self):
         """

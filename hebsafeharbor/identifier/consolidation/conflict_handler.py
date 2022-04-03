@@ -73,6 +73,17 @@ class SameBoundaries(ConflictHandler):
         :param doc: Doc object
         :return: the selected entity to be kept
         """
+
+        # If there are more than one recognizers, remove the results coming out of the Hebspacy recognizer
+        group_recognizers = set(map(lambda entity: entity.analysis_explanation.recognizer, entities))
+
+        if (len(group_recognizers) > 1) and ("SpacyRecognizerWithConfidence" in group_recognizers):
+            filtered_entities = []
+            for entity in entities:
+                if entity.analysis_explanation.recognizer != "SpacyRecognizerWithConfidence":
+                    filtered_entities.append(entity)
+            entities = filtered_entities
+
         group_categories = set(map(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type], entities))
 
         # currently if there are more than 2 categories we take the longest entity
@@ -92,8 +103,8 @@ class SameBoundaries(ConflictHandler):
                 # 1. the id entity is a valid Israeli ID (checksum) **OR**
                 # 2. date entity was recognized by SpacyRecognizer and it is not a number
                 if id_entity.analysis_explanation.validation_result or (
-                        date_entity.analysis_explanation.recognizer == "SpacyRecognizer" and not doc.text[
-                                                                                                 date_entity.start:date_entity.end].isnumeric()):
+                        date_entity.analysis_explanation.recognizer == "SpacyRecognizerWithConfidence" and not doc.text[
+                                                                                                               date_entity.start:date_entity.end].isnumeric()):
                     return id_entity
                 else:
                     return date_entity
@@ -106,7 +117,7 @@ class SameBoundaries(ConflictHandler):
                 contact_entity = entities[0] if ENTITY_TYPE_TO_CATEGORY[entities[0].entity_type] == "CONTACT" else \
                     entities[1]
                 # select the contact entity in case that the date entity recognized by SpacyRecognizer
-                if date_entity.analysis_explanation.recognizer == "SpacyRecognizer":
+                if date_entity.analysis_explanation.recognizer == "SpacyRecognizerWithConfidence":
                     return contact_entity
                 else:
                     return date_entity
