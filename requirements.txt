@@ -1,4 +1,4 @@
 presidio-analyzer
 presidio-anonymizer
-pyahocorasick==1.4.2
+pyahocorasick==1.4.4
 hebspacy
