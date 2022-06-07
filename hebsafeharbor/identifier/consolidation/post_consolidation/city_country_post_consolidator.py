@@ -13,7 +13,7 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
     if necessary.
     """
 
-    MINIMUM_CONFIDENCE_TO_RECOGNIZE = 0.5 #if final confidence score is below - exclude from entities
+    MINIMUM_CONFIDENCE_TO_RECOGNIZE = 0.5  # if final confidence score is below - exclude from entities
 
     def __init__(self):
         """
@@ -38,11 +38,15 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
         if len(custom_entities) == 0:
             return consolidated_entities
 
-        consolidated_entities.extend(
-            [entity for entity in custom_entities if entity.score >= self.MINIMUM_CONFIDENCE_TO_RECOGNIZE])
+        candidate_entities = [entity for entity in custom_entities if
+                              entity.score >= self.MINIMUM_CONFIDENCE_TO_RECOGNIZE]
+        if len(candidate_entities) == 0:
+            return consolidated_entities
+
+        consolidated_entities.extend(candidate_entities)
         consolidated_entities = self.sort_entities_by_offset_start(consolidated_entities)
 
-        prev_entity_id = 0 # to handle cases where overlap is between more than 2 entities. Ex. שרון גשר מר"ג
+        prev_entity_id = 0  # to handle cases where overlap is between more than 2 entities. Ex. שרון גשר מר"ג
         # TODO: when any entity is adjusted, resort and loop over the list again (Ex. קיבוץ עין החורש)
         for cur_entity_id in range(1, len(consolidated_entities)):
             if consolidated_entities[cur_entity_id].start <= consolidated_entities[prev_entity_id].end:
@@ -84,7 +88,7 @@ class CityCountryPostConsolidator(PostConsolidatorRule):
             if (entity.entity_type in self.lower_preference_entity_types) | (
                     entity.entity_type in self.supported_entity_types):
                 if (entity.end - entity.start) == 0:
-                        consolidated_entities.remove(entity)
+                    consolidated_entities.remove(entity)
                 if (entity.end - entity.start) == 1:
                     if doc.text[entity.start:entity.end] in self.location_prepositions:
                         consolidated_entities.remove(entity)

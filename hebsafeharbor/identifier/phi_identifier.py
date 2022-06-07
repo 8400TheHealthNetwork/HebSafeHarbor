@@ -22,6 +22,7 @@ from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerRegistr
 from presidio_analyzer.predefined_recognizers import CreditCardRecognizer, DateRecognizer, EmailRecognizer, \
     IpRecognizer, PhoneRecognizer, UrlRecognizer
 
+from hebsafeharbor.identifier.signals.noisy_date_recognizer import NoisyDateRecognizer
 from hebsafeharbor.lexicons.disease import DISEASES
 from hebsafeharbor.lexicons.lab_tests import LAB_TESTS
 from hebsafeharbor.lexicons.medical_device import MEDICAL_DEVICE
@@ -127,6 +128,8 @@ class PhiIdentifier:
         ner_signals.append(PrepositionDateRecognizer())
         # init latin dates
         ner_signals.append(HebLatinDateRecognizer())
+        # init noisy dates
+        ner_signals.append(NoisyDateRecognizer())
         # init Hebrew country recognizer
         ner_signals.append(LexiconBasedRecognizer("CountryRecognizer", "COUNTRY", COUNTRY_DICT.keys(),
                                                   allowed_prepositions=LOCATION_PREPOSITIONS))
