@@ -1,5 +1,5 @@
 _MAJOR = "0"
-_MINOR = "0"
-_REVISION = "11"
+_MINOR = "1"
+_REVISION = "0"
 
 VERSION = f"{_MAJOR}.{_MINOR}.{_REVISION}"
