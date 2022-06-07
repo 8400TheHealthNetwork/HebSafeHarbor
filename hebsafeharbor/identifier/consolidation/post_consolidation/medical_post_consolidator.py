@@ -47,8 +47,6 @@ class MedicalPostConsolidator(PostConsolidatorRule):
                                                                                  post_consolidated_entities, doc)
 
         post_consolidated_entities = self.infer_by_context(doc, post_consolidated_entities)
-        post_consolidated_entities = self.remove_person_not_in_beginning(doc, post_consolidated_entities)
-
         return post_consolidated_entities
 
     def remove_entity_overlap_with_medical(self, medical_entities: List[RecognizerResult],

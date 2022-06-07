@@ -16,37 +16,37 @@ class OverlapResolver(ABC):
     """
 
     @abstractmethod
-    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> RecognizerResult:
+    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
         """
         This function resolves the conflict between overlapped entities. Given a group of overlapped entities it resolve
         the conflict (type and boundaries) and return the updated list of entities without overlaps
 
         :param entities_in_conflict: a group of overlapped entities
         :param doc: Doc object
-        :return: the entity that should be kept (the result of the overlap resolution)
+        :return: the entities that should be kept (the result of the overlap resolution)
         """
         pass
 
 
 class PreferLongestEntity(OverlapResolver):
 
-    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> RecognizerResult:
+    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
         """
         This function resolves the conflict between overlapped entities by keeping only the longest entity
 
         :param entities_in_conflict: a group of overlapped entities
         :param doc: Doc object
-        :return: the longest entity
+        :return: list that contains the longest entity
         """
         sorted_by_length = sorted(entities_in_conflict, key=lambda entity: entity.end - entity.start, reverse=True)
-        return sorted_by_length[0]
+        return [sorted_by_length[0]]
 
 
 class ContextBasedResolver(OverlapResolver):
 
     def __init__(self, window_size=5):
         """
-        Initializes ContextBasedResolver by creating the the TermsRecognizer(s) for each of the categories
+        Initializes ContextBasedResolver by creating the TermsRecognizer(s) for each of the categories
 
         :param window_size: context size limit (one side)
         """
@@ -55,14 +55,14 @@ class ContextBasedResolver(OverlapResolver):
         for category, context_phrases in CATEGORY_TO_CONTEXT_PHRASES.items():
             self.category_to_recognizer[category] = TermsRecognizer(context_phrases)
 
-    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> RecognizerResult:
+    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
         """
         This function resolves the conflict between overlapped entities by examining words in context that may hint on
         the right category
 
         :param entities_in_conflict: a group of overlapped entities
         :param doc: Doc object
-        :return: the entity to be kept according to the context
+        :return: the entities to be kept according to the context
         """
         categories = set(map(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type], entities_in_conflict))
         category_to_offsets = {category: self.category_to_recognizer[category](doc.text) for category in categories}
@@ -74,22 +74,22 @@ class ContextBasedResolver(OverlapResolver):
             entity_category = ENTITY_TYPE_TO_CATEGORY[entity.entity_type]
             preceding = list(filter(lambda offset: offset < entity.start, category_to_end_offsets[entity_category]))
             if len(preceding) > 0 and any(entity.start - end_offset <= self.window_size for end_offset in preceding):
-                return entity
+                return [entity]
 
         # in case that there are no indicators in context, return the longest entity
         sort_by_length = sorted(entities_in_conflict, key=lambda entity: entity.end - entity.start, reverse=True)
-        return sort_by_length[0]
+        return [sort_by_length[0]]
 
 
 class CategoryMajorityResolver(OverlapResolver):
-    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> RecognizerResult:
+    def __call__(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
         """
         This function resolves the conflict between overlapped entities based on the entities' category where the
         selected entity is from the major category
 
         :param entities_in_conflict: a group of overlapped entities
         :param doc: Doc object
-        :return: the entity with the major category
+        :return: the entities with the major category
         """
         categories = map(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type], entities_in_conflict)
         counter = Counter(categories)
@@ -98,4 +98,4 @@ class CategoryMajorityResolver(OverlapResolver):
         entities_with_most_common_category = list(
             filter(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type] == most_common_category,
                    entities_in_conflict))
-        return entities_with_most_common_category[0]
+        return [entities_with_most_common_category[0]]
