@@ -51,8 +51,8 @@ class NerConsolidator:
                 # only one entity in group and it doesn't satisfy the minimal conditions
                 last_entity = group[0]
             else:
-                consolidated_entities.append(selected_entity)
-                last_entity = selected_entity
+                consolidated_entities += selected_entity
+                last_entity = selected_entity[-1]
             group = NerConsolidator.get_next_overlapped_entities_group(filtered_entities, last_entity.end)
 
         # trigger the custom entity consolidators
@@ -108,21 +108,22 @@ class NerConsolidator:
             return False
         return True
 
-    def consolidate_entities(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> RecognizerResult:
+    def consolidate_entities(self, entities_in_conflict: List[RecognizerResult], doc: Doc) -> List[RecognizerResult]:
         """
         This method consolidate a group of overlapped entities by identifying the conflict case and triggering the
         relevant condition handler for resolution
 
         :param entities_in_conflict: group of overlapped entities
         :param doc: Doc object
-        :return: the selected entity out of the group or None in case it doesn't satisfy the minimal requirements
+        :return: the list of selected entities out of the group or None in case it doesn't satisfy the minimal
+        requirements
         """
 
         # if there is only one entity in group there is no conflict - keep it in case it satisfying the minimal
         # requirements
         if len(entities_in_conflict) == 1:
             if NerConsolidator.keep_single_entity(entities_in_conflict[0], doc):
-                return entities_in_conflict[0]
+                return entities_in_conflict
             else:
                 return None
 

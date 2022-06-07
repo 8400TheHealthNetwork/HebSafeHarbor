@@ -16,7 +16,8 @@ class DateEntitySplitter(EntitySplitter):
         """
         Initializes DateEntitySplitter
         """
-        super().__init__(supported_entity_types=["DATE", "DATE_TIME","HEBREW_DATE","LATIN_DATE","PREPOSITION_DATE"])
+        super().__init__(
+            supported_entity_types=["DATE", "DATE_TIME", "HEBREW_DATE", "LATIN_DATE", "PREPOSITION_DATE", "NOISY_DATE"])
         self.birth_date_terms_recognizer = TermsRecognizer(DateEntitySplitter.BIRTH_DATE_CONTEXT)
 
     def __call__(self, doc: Doc) -> Doc:
