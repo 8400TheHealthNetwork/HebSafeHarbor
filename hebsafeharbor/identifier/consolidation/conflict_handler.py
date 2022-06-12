@@ -91,6 +91,9 @@ class SameBoundaries(ConflictHandler):
                     filtered_entities.append(entity)
             entities = filtered_entities
 
+        if len(entities) == 1:
+            return entities
+
         group_categories = set(map(lambda entity: ENTITY_TYPE_TO_CATEGORY[entity.entity_type], entities))
 
         # currently if there are more than 2 categories we take the longest entity
